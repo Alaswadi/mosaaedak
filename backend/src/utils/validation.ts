@@ -50,6 +50,16 @@ export const updateUserStatusSchema = z.object({
     status: z.enum(['ACTIVE', 'PAUSED', 'BANNED']),
 });
 
+export const adminUpdateTenantSchema = z.object({
+    name: z.string().min(2).optional(),
+    email: z.string().email().optional(),
+    businessName: z.string().min(2).optional(),
+    phone: z.string().optional(),
+    walletBalance: z.coerce.number().min(0).optional(),
+    password: z.string().min(8).optional(), // Allow admin to reset password
+    status: z.enum(['ACTIVE', 'PAUSED', 'BANNED']).optional(),
+});
+
 // Pagination schema
 export const paginationSchema = z.object({
     page: z.coerce.number().int().positive().default(1),
@@ -65,4 +75,5 @@ export type UpdateTwilioInput = z.infer<typeof updateTwilioSchema>;
 export type TopUpRequestInput = z.infer<typeof topUpRequestSchema>;
 export type ReviewPaymentInput = z.infer<typeof reviewPaymentSchema>;
 export type UpdateUserStatusInput = z.infer<typeof updateUserStatusSchema>;
+export type AdminUpdateTenantInput = z.infer<typeof adminUpdateTenantSchema>;
 export type PaginationInput = z.infer<typeof paginationSchema>;

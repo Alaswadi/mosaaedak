@@ -1,8 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
 import { tenantService, usageService } from '../services/index.js';
-import { paginationSchema, updateUserStatusSchema } from '../utils/validation.js';
+import { paginationSchema, updateUserStatusSchema, registerSchema, adminUpdateTenantSchema } from '../utils/validation.js';
 import { TenantStatus } from '@prisma/client';
+import { authService } from '../services/authService.js';
 
 const router = Router();
 
@@ -40,6 +41,23 @@ router.get('/tenants', async (req: Request, res: Response, next: NextFunction) =
 });
 
 /**
+ * POST /api/admin/tenants
+ * Create a new tenant (Admin only)
+ */
+router.post('/tenants', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const input = registerSchema.parse(req.body);
+        const result = await authService.registerCustomer(input);
+        res.status(201).json({
+            message: 'Tenant created successfully',
+            user: result.user,
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
  * GET /api/admin/tenants/:id
  * Get single tenant details
  */
@@ -47,6 +65,23 @@ router.get('/tenants/:id', async (req: Request, res: Response, next: NextFunctio
     try {
         const tenant = await tenantService.getTenantProfile(req.params.id);
         res.json(tenant);
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * PATCH /api/admin/tenants/:id
+ * Update tenant details (Admin only)
+ */
+router.patch('/tenants/:id', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const input = adminUpdateTenantSchema.parse(req.body);
+        const result = await tenantService.updateTenant(req.params.id, input);
+        res.json({
+            message: 'Tenant updated successfully',
+            tenant: result,
+        });
     } catch (error) {
         next(error);
     }

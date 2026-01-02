@@ -1,8 +1,11 @@
 import { useLanguage } from '../../contexts/LanguageContext';
-import type { User } from '../../data/usersData';
+import type { User } from '../../services/api';
 
 interface UsersTableProps {
     users: User[];
+    onAddUser?: () => void;
+    onViewUser?: (user: User) => void;
+    onEditUser?: (user: User) => void;
 }
 
 // View icon
@@ -33,7 +36,7 @@ function MessageIcon({ className }: { className?: string }) {
     );
 }
 
-export function UsersTable({ users }: UsersTableProps) {
+export function UsersTable({ users, onAddUser, onViewUser, onEditUser }: UsersTableProps) {
     const { t, isRTL } = useLanguage();
 
     return (
@@ -43,9 +46,14 @@ export function UsersTable({ users }: UsersTableProps) {
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
                     {t('users.table.title')}
                 </h3>
-                <button className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600">
-                    {t('users.table.addUser')}
-                </button>
+                {onAddUser && (
+                    <button
+                        onClick={onAddUser}
+                        className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+                    >
+                        {t('users.table.addUser')}
+                    </button>
+                )}
             </div>
 
             {/* Table */}
@@ -107,16 +115,16 @@ export function UsersTable({ users }: UsersTableProps) {
                                 {/* Status */}
                                 <td className="px-6 py-4">
                                     <span
-                                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${user.status === 'active'
+                                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${user.status?.toLowerCase() === 'active'
                                             ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
                                             : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400'
                                             }`}
                                     >
                                         <span
-                                            className={`h-1.5 w-1.5 rounded-full ${user.status === 'active' ? 'bg-primary-500' : 'bg-neutral-400'
+                                            className={`h-1.5 w-1.5 rounded-full ${user.status?.toLowerCase() === 'active' ? 'bg-primary-500' : 'bg-neutral-400'
                                                 }`}
                                         />
-                                        {user.status === 'active' ? t('users.table.active') : t('users.table.inactive')}
+                                        {user.status?.toLowerCase() === 'active' ? t('users.table.active') : t('users.table.inactive')}
                                     </span>
                                 </td>
 
@@ -141,12 +149,14 @@ export function UsersTable({ users }: UsersTableProps) {
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
                                         <button
+                                            onClick={() => onViewUser?.(user)}
                                             className="rounded-lg p-2 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-primary-500 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-primary-400"
                                             title={t('users.table.view')}
                                         >
                                             <ViewIcon className="h-5 w-5" />
                                         </button>
                                         <button
+                                            onClick={() => onEditUser?.(user)}
                                             className="rounded-lg p-2 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-blue-500 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-blue-400"
                                             title={t('users.table.edit')}
                                         >

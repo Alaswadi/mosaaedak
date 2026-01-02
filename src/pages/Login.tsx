@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -107,16 +107,7 @@ export function Login() {
                         </button>
                     </form>
 
-                    {/* Register Link */}
-                    <p className={`mt-6 text-center text-sm text-neutral-600 dark:text-neutral-400`}>
-                        {isRTL ? 'ليس لديك حساب؟ ' : "Don't have an account? "}
-                        <Link
-                            to="/register"
-                            className="text-primary-600 hover:text-primary-500 font-medium"
-                        >
-                            {isRTL ? 'سجل الآن' : 'Register'}
-                        </Link>
-                    </p>
+
                 </div>
             </div>
         </div>

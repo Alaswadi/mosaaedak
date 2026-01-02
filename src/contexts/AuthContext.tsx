@@ -34,15 +34,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loadUserData = async () => {
         try {
-            const profile = await api.getTenantProfile();
-            setUser({
-                id: profile.user?.email || '',
-                email: profile.user?.email || '',
-                name: profile.user?.name || '',
-                role: 'CUSTOMER',
-                tenantId: profile.id,
-            } as User);
-            setTenant(profile);
+            const { user } = await api.getMe();
+            setUser(user);
+            if (user.tenant) {
+                setTenant(user.tenant);
+            }
         } catch (error) {
             console.error('Failed to load user data:', error);
             api.logout();

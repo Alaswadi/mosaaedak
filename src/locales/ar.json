@@ -4,7 +4,23 @@
         "theme": "المظهر",
         "logout": "تسجيل خروج",
         "live": "مباشر",
-        "language": "اللغة"
+        "language": "اللغة",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "update": "تحديث",
+        "creating": "جاري الإنشاء...",
+        "updating": "جاري التحديث..."
+    },
+    "auth": {
+        "register": {
+            "fullName": "الاسم الكامل",
+            "email": "البريد الإلكتروني",
+            "password": "كلمة المرور",
+            "businessName": "اسم العمل",
+            "phone": "رقم الهاتف",
+            "newPasswordOptional": "كلمة مرور جديدة (اختياري)",
+            "passwordPlaceholder": "اتركه فارغاً للاحتفاظ بالحالية"
+        }
     },
     "nav": {
         "dashboard": "لوحة التحكم",
@@ -65,6 +81,8 @@
         "table": {
             "title": "جميع المستخدمين",
             "addUser": "إضافة مستخدم",
+            "createUser": "إنشاء مستخدم",
+            "updateUser": "تحديث المستخدم",
             "user": "المستخدم",
             "contact": "التواصل",
             "status": "الحالة",

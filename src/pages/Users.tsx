@@ -1,13 +1,81 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Sidebar from '../components/Sidebar';
 import UserStatsCards from '../components/widgets/UserStatsCards';
 import UsersTable from '../components/widgets/UsersTable';
 import { useLanguage } from '../contexts/LanguageContext';
-import { userStatsData, usersData } from '../data/usersData';
+import { userStatsData } from '../data/usersData';
+import api, { type User } from '../services/api';
+import { AddUserModal } from '../components/modals/AddUserModal';
+import { EditUserModal } from '../components/modals/EditUserModal';
+import { ViewUserModal } from '../components/modals/ViewUserModal';
 
 export function Users() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [users, setUsers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const { t, isRTL } = useLanguage();
+
+    const fetchUsers = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const response = await api.getTenants();
+
+            // Map API response to User interface
+            const mappedUsers: User[] = response.tenants.map((tenant) => {
+                const joinedDate = new Date(tenant.createdAt || Date.now()).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+
+                return {
+                    id: tenant.id,
+                    name: tenant.businessName, // Display business name as primary name
+                    email: tenant.user?.email || '',
+                    role: tenant.user?.role || 'CUSTOMER',
+                    phone: tenant.user?.phone || '',
+                    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${tenant.businessName}`,
+                    status: tenant.status === 'ACTIVE' ? 'active' : 'inactive',
+                    lastActive: new Date(tenant.user?.lastLoginAt || Date.now()).toLocaleDateString(), // simplified for now
+                    joinedDate: joinedDate,
+                    conversationsCount: 0, // Placeholder
+                    messagesCount: 0 // Placeholder
+                };
+            });
+
+            setUsers(mappedUsers);
+        } catch (error) {
+            console.error('Failed to fetch users:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    const handleUserAdded = () => {
+        fetchUsers();
+    };
+
+    const handleUserUpdated = () => {
+        fetchUsers();
+    };
+
+    const onEditUser = (user: User) => {
+        setSelectedUser(user);
+        setIsEditModalOpen(true);
+    };
+
+    const onViewUser = (user: User) => {
+        setSelectedUser(user);
+        setIsViewModalOpen(true);
+    };
 
     return (
         <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900">
@@ -51,10 +119,43 @@ export function Users() {
 
                     {/* Users table */}
                     <div className="mt-6">
-                        <UsersTable users={usersData} />
+                        {isLoading ? (
+                            <div className="flex justify-center p-12">
+                                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent"></div>
+                            </div>
+                        ) : (
+                            <UsersTable
+                                users={users}
+                                onAddUser={() => setIsAddModalOpen(true)}
+                                onViewUser={onViewUser}
+                                onEditUser={onEditUser}
+                            />
+                        )}
                     </div>
                 </div>
             </main>
+
+            {/* Add User Modal */}
+            <AddUserModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onUserAdded={handleUserAdded}
+            />
+
+            {/* Edit User Modal */}
+            <EditUserModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onUserUpdated={handleUserUpdated}
+                user={selectedUser}
+            />
+
+            {/* View User Modal */}
+            <ViewUserModal
+                isOpen={isViewModalOpen}
+                onClose={() => setIsViewModalOpen(false)}
+                user={selectedUser}
+            />
         </div>
     );
 }

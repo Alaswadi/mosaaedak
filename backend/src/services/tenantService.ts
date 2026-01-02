@@ -1,9 +1,15 @@
 import prisma from '../config/database.js';
 import { getRedis, CacheKeys, CacheTTL } from '../config/redis.js';
 import { AppError } from '../middleware/errorHandler.js';
-import { UpdateBotConfigInput, UpdateTwilioInput } from '../utils/validation.js';
+import {
+    UpdateBotConfigInput,
+    UpdateTwilioInput,
+    AdminUpdateTenantInput
+} from '../utils/validation.js';
 import { encrypt, decrypt } from '../utils/encryption.js';
 import { TenantStatus } from '@prisma/client';
+import bcrypt from 'bcrypt';
+import { SALT_ROUNDS } from './authService.js';
 
 export class TenantService {
     /**
@@ -265,6 +271,76 @@ export class TenantService {
         await redis.del(CacheKeys.tenantBalance(tenantId));
 
         return tenant;
+    }
+
+    /**
+     * Update tenant details (admin)
+     */
+    async updateTenant(tenantId: string, input: AdminUpdateTenantInput) {
+        const redis = getRedis();
+        const { name, email, businessName, phone, walletBalance, password, status } = input;
+
+        // Prepare data for update
+        let passwordHash: string | undefined;
+        if (password) {
+            passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+        }
+
+        // We use a transaction because we might need to update both User and Tenant
+        const result = await prisma.$transaction(async (tx) => {
+            // Update tenant fields
+            if (businessName || walletBalance !== undefined) {
+                await tx.tenant.update({
+                    where: { id: tenantId },
+                    data: {
+                        ...(businessName && { businessName }),
+                        ...(walletBalance !== undefined && { walletBalance }),
+                        ...(status && { status }),
+                    },
+                });
+            }
+
+            // Update user fields
+            if (name || email || phone || passwordHash) {
+                // Find user associated with this tenant
+                const user = await tx.user.findFirst({
+                    where: { tenantId },
+                });
+
+                if (user) {
+                    await tx.user.update({
+                        where: { id: user.id },
+                        data: {
+                            ...(name && { name }),
+                            ...(email && { email }),
+                            ...(phone && { phone }),
+                            ...(passwordHash && { passwordHash }),
+                        },
+                    });
+                }
+            }
+
+            // Return fresh data
+            return tx.tenant.findUnique({
+                where: { id: tenantId },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            phone: true,
+                        }
+                    }
+                }
+            });
+        });
+
+        // Invalidate caches
+        await redis.del(CacheKeys.tenantConfig(tenantId));
+        await redis.del(CacheKeys.tenantBalance(tenantId));
+
+        return result;
     }
 }
 

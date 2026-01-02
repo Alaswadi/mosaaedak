@@ -15,7 +15,6 @@ import BotConfig from './pages/BotConfig';
 
 // Auth pages
 import Login from './pages/Login';
-import Register from './pages/Register';
 
 // Protected Route wrapper
 function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode; requireAdmin?: boolean }) {
@@ -64,7 +63,6 @@ function AppRoutes() {
     <Routes>
       {/* Public Routes */}
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
       {/* Admin Routes */}
       <Route path="/dashboard" element={<ProtectedRoute requireAdmin><Dashboard /></ProtectedRoute>} />

@@ -1,6 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { authService } from '../services/index.js';
+import { authenticate } from '../middleware/auth.js';
+import prisma from '../config/database.js';
 import { registerSchema, loginSchema } from '../utils/validation.js';
+
 import { authLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
@@ -41,6 +44,38 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             user: result.user,
             token: result.token,
         });
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * GET /api/auth/me
+ * Get current user
+ */
+router.get('/me', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user!.id },
+            include: {
+                tenant: {
+                    select: {
+                        id: true,
+                        businessName: true,
+                        walletBalance: true,
+                        status: true,
+                    },
+                },
+            },
+        });
+
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+
+        const { passwordHash: _, ...safeUser } = user;
+        res.json({ user: safeUser });
     } catch (error) {
         next(error);
     }

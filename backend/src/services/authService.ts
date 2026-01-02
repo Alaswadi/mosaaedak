@@ -4,7 +4,7 @@ import { generateToken } from '../middleware/auth.js';
 import { RegisterInput, LoginInput } from '../utils/validation.js';
 import { AppError } from '../middleware/errorHandler.js';
 
-const SALT_ROUNDS = 12;
+export const SALT_ROUNDS = 12;
 
 export class AuthService {
     /**

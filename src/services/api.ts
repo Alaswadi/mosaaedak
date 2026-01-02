@@ -8,6 +8,16 @@ export interface User {
     role: 'ADMIN' | 'CUSTOMER';
     tenantId?: string;
     tenant?: Tenant;
+    phone?: string;
+    createdAt?: string;
+    lastLoginAt?: string;
+    // Frontend specific fields
+    avatar?: string;
+    status?: 'active' | 'inactive' | 'ACTIVE' | 'PAUSED' | 'BANNED'; // Unify status types
+    lastActive?: string;
+    joinedDate?: string;
+    conversationsCount?: number;
+    messagesCount?: number;
 }
 
 export interface Tenant {
@@ -20,6 +30,8 @@ export interface Tenant {
     twilioPhone?: string;
     monthlyFee: number;
     nextBillingDate?: string;
+    user?: User;
+    createdAt?: string;
 }
 
 export interface PaymentTransaction {
@@ -136,6 +148,10 @@ class ApiClient {
         return result;
     }
 
+    async getMe() {
+        return this.request<{ user: User }>('/auth/me');
+    }
+
     logout() {
         this.setToken(null);
     }
@@ -236,8 +252,22 @@ class ApiClient {
         return this.request<{ tenants: (Tenant & { user?: User })[] } & PaginatedResponse>(url);
     }
 
+    async createTenant(data: { email: string; password: string; name: string; businessName: string; phone?: string }) {
+        return this.request<{ message: string; user: User }>('/admin/tenants', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
     async getTenantDetails(id: string) {
         return this.request<Tenant & { user: User }>(`/admin/tenants/${id}`);
+    }
+
+    async updateTenant(id: string, data: { name?: string; email?: string; phone?: string; businessName?: string; password?: string; status?: 'ACTIVE' | 'PAUSED' | 'BANNED' }) {
+        return this.request<{ message: string; tenant: Tenant }>(`/admin/tenants/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+        });
     }
 
     async updateTenantStatus(id: string, status: 'ACTIVE' | 'PAUSED' | 'BANNED') {
