@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: mosaaedak-db
+    environment:
+      POSTGRES_DB: mosaaedak
+      POSTGRES_USER: ${DB_USER:-mosaaedak}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mosaaedak_secret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-mosaaedak}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: mosaaedak-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Gateway
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mosaaedak-api
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${DB_USER:-mosaaedak}:${DB_PASSWORD:-mosaaedak_secret}@postgres:5432/mosaaedak?schema=public
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=7d
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL:-https://n8n.mosaaedak.com/webhook}
+      - UPLOAD_DIR=/app/uploads
+      - COST_PER_MESSAGE=0.03
+      - MONTHLY_SUBSCRIPTION_FEE=29.00
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - internal
+      - external
+    restart: unless-stopped
+
+  # Frontend (React/Vite served via Nginx)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: mosaaedak-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - external
+    restart: unless-stopped
+
+networks:
+  internal:
+    driver: bridge
+  external:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:
