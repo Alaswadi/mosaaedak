@@ -21,8 +21,26 @@ const app = express();
 app.set('trust proxy', 1);
 
 // CORS configuration
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5173', // Vite local dev
+    'http://localhost:4173', // Vite preview
+    'http://localhost:3000', // Alternative local port
+    'http://localhost',      // Docker/Coolify local
+].filter((origin): origin is string => !!origin);
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.warn(`Blocked CORS request from origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 }));
 
