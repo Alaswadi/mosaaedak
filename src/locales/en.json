@@ -1,0 +1,86 @@
+{
+    "common": {
+        "search": "Search...",
+        "theme": "Theme",
+        "logout": "Log Out",
+        "live": "Live",
+        "language": "Language"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "conversations": "Conversations",
+        "users": "Users",
+        "analytics": "Analytics",
+        "settings": "Settings"
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "welcome": "Welcome back to mosaaedak"
+    },
+    "stats": {
+        "totalQueries": "Total Queries",
+        "activeUsers": "Active Users",
+        "successRate": "Success Rate",
+        "avgResponse": "Avg Response"
+    },
+    "widgets": {
+        "totalQueries": "Total Queries",
+        "userEngagement": "User Engagement",
+        "serverStatus": "Server Status",
+        "liveChatLogs": "Live Chat Logs",
+        "viewAllConversations": "View All Conversations →"
+    },
+    "serverStatus": {
+        "uptime": "Uptime",
+        "lastCheck": "Last check"
+    },
+    "userSegments": {
+        "newUsers": "New Users",
+        "oldUsers": "Old Users"
+    },
+    "months": {
+        "jan": "Jan",
+        "feb": "Feb",
+        "mar": "Mar",
+        "apr": "Apr",
+        "may": "May",
+        "jun": "Jun",
+        "jul": "Jul",
+        "aug": "Aug",
+        "sep": "Sep",
+        "oct": "Oct",
+        "nov": "Nov",
+        "dec": "Dec"
+    },
+    "users": {
+        "title": "Users",
+        "subtitle": "Manage and monitor your chatbot users",
+        "searchPlaceholder": "Search users...",
+        "stats": {
+            "totalUsers": "Total Users",
+            "activeToday": "Active Today",
+            "newThisWeek": "New This Week",
+            "avgMessages": "Avg Messages/User"
+        },
+        "table": {
+            "title": "All Users",
+            "addUser": "Add User",
+            "user": "User",
+            "contact": "Contact",
+            "status": "Status",
+            "conversations": "Conversations",
+            "lastActive": "Last Active",
+            "actions": "Actions",
+            "joined": "Joined",
+            "active": "Active",
+            "inactive": "Inactive",
+            "view": "View",
+            "edit": "Edit",
+            "showing": "Showing",
+            "of": "of",
+            "users": "users",
+            "previous": "Previous",
+            "next": "Next"
+        }
+    }
+}

@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* Custom base styles */
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-50;
+    @apply font-sans antialiased;
+  }
+
+  /* Arabic font and RTL styles */
+  html.font-arabic {
+    font-family: 'Cairo', system-ui, sans-serif;
+  }
+
+  html.font-arabic body {
+    @apply font-cairo;
+  }
+
+  /* RTL-specific adjustments */
+  html[dir="rtl"] {
+    text-align: right;
+  }
+
+  html[dir="rtl"] .border-l-4 {
+    border-left-width: 0;
+    border-right-width: 4px;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  .card {
+    @apply bg-white dark:bg-neutral-800 rounded-lg shadow-card dark:shadow-card-dark;
+  }
+
+  .card-hover {
+    @apply hover:shadow-card-hover transition-shadow duration-300;
+  }
+}

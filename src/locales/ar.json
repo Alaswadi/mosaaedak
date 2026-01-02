@@ -1,0 +1,86 @@
+{
+    "common": {
+        "search": "بحث...",
+        "theme": "المظهر",
+        "logout": "تسجيل خروج",
+        "live": "مباشر",
+        "language": "اللغة"
+    },
+    "nav": {
+        "dashboard": "لوحة التحكم",
+        "conversations": "المحادثات",
+        "users": "المستخدمون",
+        "analytics": "التحليلات",
+        "settings": "الإعدادات"
+    },
+    "dashboard": {
+        "title": "لوحة التحكم",
+        "welcome": "مرحباً بعودتك إلى مساعدك"
+    },
+    "stats": {
+        "totalQueries": "إجمالي الاستعلامات",
+        "activeUsers": "المستخدمون النشطون",
+        "successRate": "معدل النجاح",
+        "avgResponse": "متوسط الاستجابة"
+    },
+    "widgets": {
+        "totalQueries": "إجمالي الاستعلامات",
+        "userEngagement": "تفاعل المستخدمين",
+        "serverStatus": "حالة الخادم",
+        "liveChatLogs": "سجلات المحادثات المباشرة",
+        "viewAllConversations": "← عرض جميع المحادثات"
+    },
+    "serverStatus": {
+        "uptime": "وقت التشغيل",
+        "lastCheck": "آخر فحص"
+    },
+    "userSegments": {
+        "newUsers": "مستخدمون جدد",
+        "oldUsers": "مستخدمون قدامى"
+    },
+    "months": {
+        "jan": "يناير",
+        "feb": "فبراير",
+        "mar": "مارس",
+        "apr": "أبريل",
+        "may": "مايو",
+        "jun": "يونيو",
+        "jul": "يوليو",
+        "aug": "أغسطس",
+        "sep": "سبتمبر",
+        "oct": "أكتوبر",
+        "nov": "نوفمبر",
+        "dec": "ديسمبر"
+    },
+    "users": {
+        "title": "المستخدمون",
+        "subtitle": "إدارة ومتابعة مستخدمي روبوت المحادثة",
+        "searchPlaceholder": "البحث عن مستخدمين...",
+        "stats": {
+            "totalUsers": "إجمالي المستخدمين",
+            "activeToday": "نشطون اليوم",
+            "newThisWeek": "جدد هذا الأسبوع",
+            "avgMessages": "متوسط الرسائل/مستخدم"
+        },
+        "table": {
+            "title": "جميع المستخدمين",
+            "addUser": "إضافة مستخدم",
+            "user": "المستخدم",
+            "contact": "التواصل",
+            "status": "الحالة",
+            "conversations": "المحادثات",
+            "lastActive": "آخر نشاط",
+            "actions": "الإجراءات",
+            "joined": "انضم",
+            "active": "نشط",
+            "inactive": "غير نشط",
+            "view": "عرض",
+            "edit": "تعديل",
+            "showing": "عرض",
+            "of": "من",
+            "users": "مستخدمين",
+            "previous": "السابق",
+            "next": "التالي"
+        }
+    }
+}
