@@ -58,6 +58,7 @@ services:
       - MONTHLY_SUBSCRIPTION_FEE=29.00
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - API_URL=${API_URL:-http://localhost:3001}
     volumes:
       - uploads_data:/app/uploads
     depends_on:
