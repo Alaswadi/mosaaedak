@@ -1,7 +1,7 @@
 import prisma from '../config/database.js';
 import { walletService } from './walletService.js';
 import { AppError } from '../middleware/errorHandler.js';
-import { TopUpRequestInput, ReviewPaymentInput } from '../utils/validation.js';
+import { TopUpRequestInput, ReviewPaymentInput, AdminTopUpInput } from '../utils/validation.js';
 import { TransactionStatus, PaymentMethod } from '@prisma/client';
 import path from 'path';
 import fs from 'fs/promises';
@@ -34,6 +34,43 @@ export class PaymentService {
         });
 
         return transaction;
+    }
+
+    /**
+     * Admin Top Up (Direct Balance Add)
+     */
+    async adminTopUp(
+        tenantId: string,
+        adminUserId: string,
+        input: AdminTopUpInput
+    ) {
+        return prisma.$transaction(async (tx) => {
+            // 1. Create Transaction Record
+            const transaction = await tx.paymentTransaction.create({
+                data: {
+                    tenantId,
+                    amount: input.amount,
+                    method: input.method as PaymentMethod,
+                    status: 'APPROVED', // Instant approval
+                    reviewedById: adminUserId,
+                    reviewedAt: new Date(),
+                    rejectionNotes: input.notes, // Using notes field for any admin comments
+                },
+            });
+
+            // 2. Add Balance to Wallet
+            const tenant = await tx.tenant.update({
+                where: { id: tenantId },
+                data: {
+                    walletBalance: { increment: input.amount },
+                },
+            });
+
+            return {
+                transaction,
+                newBalance: tenant.walletBalance.toNumber(),
+            };
+        });
     }
 
     /**

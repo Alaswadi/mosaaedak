@@ -7,6 +7,8 @@ export const registerSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     phone: z.string().optional(),
     businessName: z.string().min(2, 'Business name must be at least 2 characters'),
+    initialPayment: z.number().positive('Amount must be positive').optional(),
+    paymentMethod: z.enum(['KURIMI', 'USDT', 'CASH']).optional(),
 });
 
 export const loginSchema = z.object({
@@ -60,6 +62,12 @@ export const adminUpdateTenantSchema = z.object({
     status: z.enum(['ACTIVE', 'PAUSED', 'BANNED']).optional(),
 });
 
+export const adminTopUpSchema = z.object({
+    amount: z.number().positive(),
+    method: z.enum(['CASH', 'KURIMI', 'USDT']),
+    notes: z.string().optional(),
+});
+
 // Pagination schema
 export const paginationSchema = z.object({
     page: z.coerce.number().int().positive().default(1),
@@ -67,13 +75,18 @@ export const paginationSchema = z.object({
 });
 
 // Type exports
-export type RegisterInput = z.infer<typeof registerSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type UpdateBotConfigInput = z.infer<typeof updateBotConfigSchema>;
 export type UpdateTwilioInput = z.infer<typeof updateTwilioSchema>;
 export type TopUpRequestInput = z.infer<typeof topUpRequestSchema>;
 export type ReviewPaymentInput = z.infer<typeof reviewPaymentSchema>;
+export type AdminTopUpInput = z.infer<typeof adminTopUpSchema>;
 export type UpdateUserStatusInput = z.infer<typeof updateUserStatusSchema>;
 export type AdminUpdateTenantInput = z.infer<typeof adminUpdateTenantSchema>;
 export type PaginationInput = z.infer<typeof paginationSchema>;
+
+export type RegisterInput = z.infer<typeof registerSchema> & {
+    initialPayment?: number;
+    paymentMethod?: 'KURIMI' | 'USDT' | 'CASH';
+};
+export type LoginInput = z.infer<typeof loginSchema>;

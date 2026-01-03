@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
-import { tenantService, usageService } from '../services/index.js';
-import { paginationSchema, updateUserStatusSchema, registerSchema, adminUpdateTenantSchema } from '../utils/validation.js';
+import { tenantService, usageService, paymentService } from '../services/index.js';
+import { paginationSchema, updateUserStatusSchema, registerSchema, adminUpdateTenantSchema, adminTopUpSchema } from '../utils/validation.js';
 import { TenantStatus } from '@prisma/client';
 import { authService } from '../services/authService.js';
 
@@ -98,6 +98,25 @@ router.patch('/tenants/:id/status', async (req: Request, res: Response, next: Ne
         res.json({
             message: `Tenant status updated to ${status}`,
             tenant,
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * POST /api/admin/tenants/:id/topup
+ * Top up tenant wallet (Admin only)
+ */
+router.post('/tenants/:id/topup', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const input = adminTopUpSchema.parse(req.body);
+        const { user } = req as any; // Admin user from auth middleware
+        const result = await paymentService.adminTopUp(req.params.id, user.id, input);
+
+        res.json({
+            message: 'Top-up successful',
+            ...result
         });
     } catch (error) {
         next(error);

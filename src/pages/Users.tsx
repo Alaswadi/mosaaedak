@@ -8,6 +8,7 @@ import api, { type User } from '../services/api';
 import { AddUserModal } from '../components/modals/AddUserModal';
 import { EditUserModal } from '../components/modals/EditUserModal';
 import { ViewUserModal } from '../components/modals/ViewUserModal';
+import { AdminTopUpModal } from '../components/modals/AdminTopUpModal';
 
 export function Users() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -16,6 +17,7 @@ export function Users() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const { t, isRTL } = useLanguage();
 
@@ -77,6 +79,11 @@ export function Users() {
         setIsViewModalOpen(true);
     };
 
+    const onTopUpUser = (user: User) => {
+        setSelectedUser(user);
+        setIsTopUpModalOpen(true);
+    };
+
     return (
         <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900">
             {/* Sidebar */}
@@ -129,6 +136,7 @@ export function Users() {
                                 onAddUser={() => setIsAddModalOpen(true)}
                                 onViewUser={onViewUser}
                                 onEditUser={onEditUser}
+                                onTopUp={onTopUpUser}
                             />
                         )}
                     </div>
@@ -154,6 +162,14 @@ export function Users() {
             <ViewUserModal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
+                user={selectedUser}
+            />
+
+            {/* Admin Top Up Modal */}
+            <AdminTopUpModal
+                isOpen={isTopUpModalOpen}
+                onClose={() => setIsTopUpModalOpen(false)}
+                onSuccess={handleUserUpdated}
                 user={selectedUser}
             />
         </div>

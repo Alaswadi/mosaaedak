@@ -18,6 +18,8 @@ export function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps
         password: '',
         businessName: '',
         phone: '',
+        initialPayment: '',
+        paymentMethod: 'CASH',
     });
 
     if (!isOpen) return null;
@@ -28,7 +30,10 @@ export function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps
         setIsLoading(true);
 
         try {
-            await api.createTenant(formData);
+            await api.createTenant({
+                ...formData,
+                initialPayment: formData.initialPayment ? parseFloat(formData.initialPayment) : undefined,
+            });
             onUserAdded();
             onClose();
             // Reset form
@@ -38,6 +43,8 @@ export function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps
                 password: '',
                 businessName: '',
                 phone: '',
+                initialPayment: '',
+                paymentMethod: 'CASH',
             });
         } catch (err: any) {
             setError(err.message || 'Failed to create user');
@@ -133,6 +140,42 @@ export function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         />
+                    </div>
+
+                    <div className="border-t border-neutral-200 pt-4 dark:border-neutral-700">
+                        <h4 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-gray-100">
+                            Initial Payment
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                    Amount ($)
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                                    value={formData.initialPayment}
+                                    onChange={(e) => setFormData({ ...formData, initialPayment: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                    Method
+                                </label>
+                                <select
+                                    className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                                    value={formData.paymentMethod}
+                                    onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                                >
+                                    <option value="CASH">Cash</option>
+                                    <option value="KURIMI">Kurimi</option>
+                                    <option value="USDT">USDT</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">

@@ -11,7 +11,7 @@ export class AuthService {
      * Register a new customer with tenant
      */
     async registerCustomer(input: RegisterInput) {
-        const { email, password, name, phone, businessName } = input;
+        const { email, password, name, phone, businessName, initialPayment, paymentMethod } = input;
 
         // Check if email already exists
         const existingUser = await prisma.user.findUnique({
@@ -31,9 +31,23 @@ export class AuthService {
             const tenant = await tx.tenant.create({
                 data: {
                     businessName,
-                    walletBalance: 0,
+                    walletBalance: initialPayment || 0,
                 },
             });
+
+            // If initial payment is provided, create transaction record
+            if (initialPayment && initialPayment > 0) {
+                await tx.paymentTransaction.create({
+                    data: {
+                        tenantId: tenant.id,
+                        amount: initialPayment,
+                        method: paymentMethod || 'CASH', // Default to CASH if not specified
+                        status: 'APPROVED',
+                        reviewedAt: new Date(),
+                        reviewedById: null, // System approved (or could be admin ID if passed)
+                    }
+                });
+            }
 
             // Create user with tenant relation
             const user = await tx.user.create({

@@ -6,6 +6,16 @@ interface UsersTableProps {
     onAddUser?: () => void;
     onViewUser?: (user: User) => void;
     onEditUser?: (user: User) => void;
+    onTopUp?: (user: User) => void;
+}
+
+// Wallet icon
+function WalletIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a1 1 0 11-2 0 1 1 0 012 0z" />
+        </svg>
+    );
 }
 
 // View icon
@@ -36,7 +46,7 @@ function MessageIcon({ className }: { className?: string }) {
     );
 }
 
-export function UsersTable({ users, onAddUser, onViewUser, onEditUser }: UsersTableProps) {
+export function UsersTable({ users, onAddUser, onViewUser, onEditUser, onTopUp }: UsersTableProps) {
     const { t, isRTL } = useLanguage();
 
     return (
@@ -162,6 +172,13 @@ export function UsersTable({ users, onAddUser, onViewUser, onEditUser }: UsersTa
                                         >
                                             <EditIcon className="h-5 w-5" />
                                         </button>
+                                        <button
+                                            onClick={() => onTopUp?.(user)}
+                                            className="rounded-lg p-2 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-green-500 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-green-400"
+                                            title={isRTL ? 'شحن الرصيد' : 'Top Up Wallet'}
+                                        >
+                                            <WalletIcon className="h-5 w-5" />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -184,7 +201,7 @@ export function UsersTable({ users, onAddUser, onViewUser, onEditUser }: UsersTa
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

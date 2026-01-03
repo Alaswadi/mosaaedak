@@ -226,7 +226,7 @@ class ApiClient {
 
     async getPendingPayments(page = 1, limit = 20) {
         return this.request<{ transactions: PaymentTransaction[] } & PaginatedResponse>(
-            `/admin/payments/pending?page=${page}&limit=${limit}`
+            `/payments/admin/pending?page=${page}&limit=${limit}`
         );
     }
 
@@ -252,11 +252,21 @@ class ApiClient {
         return this.request<{ tenants: (Tenant & { user?: User })[] } & PaginatedResponse>(url);
     }
 
-    async createTenant(data: { email: string; password: string; name: string; businessName: string; phone?: string }) {
+    async createTenant(data: { email: string; password: string; name: string; businessName: string; phone?: string; initialPayment?: number; paymentMethod?: string }) {
         return this.request<{ message: string; user: User }>('/admin/tenants', {
             method: 'POST',
             body: JSON.stringify(data),
         });
+    }
+
+    async adminTopUp(tenantId: string, amount: number, method: string, notes?: string) {
+        return this.request<{ message: string; transaction: PaymentTransaction; newBalance: number }>(
+            `/admin/tenants/${tenantId}/topup`,
+            {
+                method: 'POST',
+                body: JSON.stringify({ amount, method, notes }),
+            }
+        );
     }
 
     async getTenantDetails(id: string) {
