@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
-import { tenantService, usageService, paymentService } from '../services/index.js';
+import { tenantService, usageService, paymentService, settingsService } from '../services/index.js';
 import { paginationSchema, updateUserStatusSchema, registerSchema, adminUpdateTenantSchema, adminTopUpSchema } from '../utils/validation.js';
 import { TenantStatus } from '@prisma/client';
 import { authService } from '../services/authService.js';
@@ -25,6 +25,32 @@ router.get('/analytics', async (req: Request, res: Response, next: NextFunction)
         const days = parseInt(req.query.days as string) || 30;
         const analytics = await usageService.getGlobalAnalytics(days);
         res.json(analytics);
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * GET /api/admin/settings/n8n-key
+ * Get N8N integration API key
+ */
+router.get('/settings/n8n-key', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const apiKey = await settingsService.getN8nApiKey();
+        res.json({ apiKey });
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * POST /api/admin/settings/n8n-key/rotate
+ * Rotate N8N integration API key
+ */
+router.post('/settings/n8n-key/rotate', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const apiKey = await settingsService.rotateN8nApiKey();
+        res.json({ apiKey, message: 'API key rotated successfully' });
     } catch (error) {
         next(error);
     }

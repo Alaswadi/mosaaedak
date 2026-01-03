@@ -300,6 +300,17 @@ class ApiClient {
             }
         );
     }
+
+    // Settings endpoints
+    async getN8nApiKey() {
+        return this.request<{ apiKey: string }>('/admin/settings/n8n-key');
+    }
+
+    async rotateN8nApiKey() {
+        return this.request<{ apiKey: string; message: string }>('/admin/settings/n8n-key/rotate', {
+            method: 'POST',
+        });
+    }
 }
 
 export const api = new ApiClient();

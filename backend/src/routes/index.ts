@@ -4,6 +4,7 @@ import tenantRoutes from './tenant.js';
 import paymentRoutes from './payments.js';
 import adminRoutes from './admin.js';
 import webhookRoutes from './webhooks.js';
+import integrationRoutes from './integrations.js';
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.use('/tenant', tenantRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/admin', adminRoutes);
 router.use('/webhooks', webhookRoutes);
+router.use('/integrations', integrationRoutes);
 
 export default router;

@@ -7,6 +7,7 @@ import './index.css';
 import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import PaymentApprovals from './pages/PaymentApprovals';
+import Settings from './pages/Settings';
 
 // Customer pages
 import CustomerDashboard from './pages/CustomerDashboard';
@@ -69,6 +70,7 @@ function AppRoutes() {
       <Route path="/users" element={<ProtectedRoute requireAdmin><Users /></ProtectedRoute>} />
       <Route path="/admin/users/:userId/bot-config" element={<ProtectedRoute requireAdmin><BotConfig /></ProtectedRoute>} />
       <Route path="/payments" element={<ProtectedRoute requireAdmin><PaymentApprovals /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute requireAdmin><Settings /></ProtectedRoute>} />
 
       {/* Customer Routes */}
       <Route path="/customer/dashboard" element={<ProtectedRoute><CustomerDashboard /></ProtectedRoute>} />
