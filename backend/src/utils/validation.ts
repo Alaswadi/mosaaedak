@@ -60,6 +60,8 @@ export const adminUpdateTenantSchema = z.object({
     walletBalance: z.coerce.number().min(0).optional(),
     password: z.string().min(8).optional(), // Allow admin to reset password
     status: z.enum(['ACTIVE', 'PAUSED', 'BANNED']).optional(),
+    systemPrompt: z.string().max(4000).optional(),
+    aiModel: z.enum(['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo']).optional(),
 });
 
 export const adminTopUpSchema = z.object({

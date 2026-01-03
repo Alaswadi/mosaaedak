@@ -278,7 +278,7 @@ export class TenantService {
      */
     async updateTenant(tenantId: string, input: AdminUpdateTenantInput) {
         const redis = getRedis();
-        const { name, email, businessName, phone, walletBalance, password, status } = input;
+        const { name, email, businessName, phone, walletBalance, password, status, systemPrompt, aiModel } = input;
 
         // Prepare data for update
         let passwordHash: string | undefined;
@@ -289,13 +289,15 @@ export class TenantService {
         // We use a transaction because we might need to update both User and Tenant
         const result = await prisma.$transaction(async (tx) => {
             // Update tenant fields
-            if (businessName || walletBalance !== undefined) {
+            if (businessName || walletBalance !== undefined || status || systemPrompt !== undefined || aiModel) {
                 await tx.tenant.update({
                     where: { id: tenantId },
                     data: {
                         ...(businessName && { businessName }),
                         ...(walletBalance !== undefined && { walletBalance }),
                         ...(status && { status }),
+                        ...(systemPrompt !== undefined && { systemPrompt }),
+                        ...(aiModel && { aiModel }),
                     },
                 });
             }

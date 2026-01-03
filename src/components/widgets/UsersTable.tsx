@@ -46,7 +46,16 @@ function MessageIcon({ className }: { className?: string }) {
     );
 }
 
-export function UsersTable({ users, onAddUser, onViewUser, onEditUser, onTopUp }: UsersTableProps) {
+// Bot icon
+function BotIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+    );
+}
+
+export function UsersTable({ users, onAddUser, onViewUser, onEditUser, onTopUp, onManageBot }: UsersTableProps & { onManageBot?: (user: User) => void }) {
     const { t, isRTL } = useLanguage();
 
     return (
@@ -143,7 +152,8 @@ export function UsersTable({ users, onAddUser, onViewUser, onEditUser, onTopUp }
                                     <div className="flex items-center gap-2">
                                         <MessageIcon className="h-4 w-4 text-neutral-400" />
                                         <span className="text-sm text-neutral-900 dark:text-neutral-50">
-                                            {user.conversationsCount}
+                                            {/* Placeholder or real data if available */}
+                                            0
                                         </span>
                                     </div>
                                 </td>
@@ -178,6 +188,13 @@ export function UsersTable({ users, onAddUser, onViewUser, onEditUser, onTopUp }
                                             title={isRTL ? 'شحن الرصيد' : 'Top Up Wallet'}
                                         >
                                             <WalletIcon className="h-5 w-5" />
+                                        </button>
+                                        <button
+                                            onClick={() => onManageBot?.(user)}
+                                            className="rounded-lg p-2 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-purple-500 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-purple-400"
+                                            title={isRTL ? 'إعدادات الروبوت' : 'Bot Configuration'}
+                                        >
+                                            <BotIcon className="h-5 w-5" />
                                         </button>
                                     </div>
                                 </td>

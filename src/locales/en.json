@@ -68,6 +68,10 @@
         "nov": "Nov",
         "dec": "Dec"
     },
+    "bot": {
+        "systemPrompt": "System Prompt",
+        "aiModel": "AI Model"
+    },
     "users": {
         "title": "Users",
         "subtitle": "Manage and monitor your chatbot users",

@@ -67,12 +67,12 @@ function AppRoutes() {
       {/* Admin Routes */}
       <Route path="/dashboard" element={<ProtectedRoute requireAdmin><Dashboard /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute requireAdmin><Users /></ProtectedRoute>} />
+      <Route path="/admin/users/:userId/bot-config" element={<ProtectedRoute requireAdmin><BotConfig /></ProtectedRoute>} />
       <Route path="/payments" element={<ProtectedRoute requireAdmin><PaymentApprovals /></ProtectedRoute>} />
 
       {/* Customer Routes */}
       <Route path="/customer/dashboard" element={<ProtectedRoute><CustomerDashboard /></ProtectedRoute>} />
       <Route path="/customer/topup" element={<ProtectedRoute><TopUp /></ProtectedRoute>} />
-      <Route path="/customer/bot-config" element={<ProtectedRoute><BotConfig /></ProtectedRoute>} />
 
       {/* Redirect root based on auth status */}
       <Route path="/" element={<Navigate to="/login" replace />} />

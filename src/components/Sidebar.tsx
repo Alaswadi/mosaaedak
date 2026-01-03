@@ -113,7 +113,6 @@ const adminNavItems = [
 const customerNavItems = [
     { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة التحكم' }, icon: 'dashboard', path: '/customer/dashboard' },
     { id: 'topup', label: { en: 'Top Up', ar: 'شحن الرصيد' }, icon: 'wallet', path: '/customer/topup' },
-    { id: 'bot-config', label: { en: 'Bot Config', ar: 'إعدادات الروبوت' }, icon: 'bot', path: '/customer/bot-config' },
 ];
 
 interface SidebarProps {

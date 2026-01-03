@@ -4,6 +4,11 @@ import { tenantService, usageService, paymentService } from '../services/index.j
 import { paginationSchema, updateUserStatusSchema, registerSchema, adminUpdateTenantSchema, adminTopUpSchema } from '../utils/validation.js';
 import { TenantStatus } from '@prisma/client';
 import { authService } from '../services/authService.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import { config } from '../config/index.js';
 
 const router = Router();
 
@@ -136,5 +141,52 @@ router.get('/tenants/:id/usage', async (req: Request, res: Response, next: NextF
         next(error);
     }
 });
+
+/**
+ * POST /api/admin/tenants/:id/upload-image
+ * Upload image for tenant bot config
+ */
+const tenantImageUpload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+            const tenantId = req.params.id;
+            const uploadPath = path.join(config.uploadDir, 'tenants', tenantId);
+            // Ensure directory exists
+            fs.mkdirSync(uploadPath, { recursive: true });
+            cb(null, uploadPath);
+        },
+        filename: (req, file, cb) => {
+            const ext = path.extname(file.originalname);
+            cb(null, `${uuidv4()}${ext}`);
+        },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('Only images are allowed'));
+        }
+        cb(null, true);
+    },
+});
+
+router.post(
+    '/tenants/:id/upload-image',
+    tenantImageUpload.single('image'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) {
+                res.status(400).json({ error: 'No image uploaded' });
+                return;
+            }
+
+            const tenantId = req.params.id;
+            const imageUrl = `${process.env.API_URL || 'http://localhost:3001'}/uploads/tenants/${tenantId}/${req.file.filename}`;
+
+            res.json({ url: imageUrl });
+        } catch (error) {
+            next(error);
+        }
+    }
+);
 
 export default router;

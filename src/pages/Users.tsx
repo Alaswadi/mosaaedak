@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import UserStatsCards from '../components/widgets/UserStatsCards';
 import UsersTable from '../components/widgets/UsersTable';
@@ -45,7 +46,9 @@ export function Users() {
                     lastActive: new Date(tenant.user?.lastLoginAt || Date.now()).toLocaleDateString(), // simplified for now
                     joinedDate: joinedDate,
                     conversationsCount: 0, // Placeholder
-                    messagesCount: 0 // Placeholder
+                    messagesCount: 0, // Placeholder
+                    systemPrompt: tenant.systemPrompt,
+                    aiModel: tenant.aiModel
                 };
             });
 
@@ -82,6 +85,11 @@ export function Users() {
     const onTopUpUser = (user: User) => {
         setSelectedUser(user);
         setIsTopUpModalOpen(true);
+    };
+
+    const navigate = useNavigate();
+    const onManageBot = (user: User) => {
+        navigate(`/admin/users/${user.id}/bot-config`);
     };
 
     return (
@@ -137,6 +145,7 @@ export function Users() {
                                 onViewUser={onViewUser}
                                 onEditUser={onEditUser}
                                 onTopUp={onTopUpUser}
+                                onManageBot={onManageBot}
                             />
                         )}
                     </div>

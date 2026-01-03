@@ -16,8 +16,9 @@ export interface User {
     status?: 'active' | 'inactive' | 'ACTIVE' | 'PAUSED' | 'BANNED'; // Unify status types
     lastActive?: string;
     joinedDate?: string;
-    conversationsCount?: number;
     messagesCount?: number;
+    systemPrompt?: string;
+    aiModel?: string;
 }
 
 export interface Tenant {
@@ -273,10 +274,20 @@ class ApiClient {
         return this.request<Tenant & { user: User }>(`/admin/tenants/${id}`);
     }
 
-    async updateTenant(id: string, data: { name?: string; email?: string; phone?: string; businessName?: string; password?: string; status?: 'ACTIVE' | 'PAUSED' | 'BANNED' }) {
+    async updateTenant(id: string, data: { name?: string; email?: string; phone?: string; businessName?: string; password?: string; status?: 'ACTIVE' | 'PAUSED' | 'BANNED'; systemPrompt?: string; aiModel?: string }) {
         return this.request<{ message: string; tenant: Tenant }>(`/admin/tenants/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(data),
+        });
+    }
+
+    async uploadTenantImage(tenantId: string, file: File) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        return this.request<{ url: string }>(`/admin/tenants/${tenantId}/upload-image`, {
+            method: 'POST',
+            body: formData,
         });
     }
 

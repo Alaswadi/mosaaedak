@@ -20,6 +20,8 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user }: EditUser
         businessName: '',
         password: '', // Optional: only if resetting
         status: 'ACTIVE',
+        systemPrompt: '',
+        aiModel: 'gpt-3.5-turbo',
     });
 
     useEffect(() => {
@@ -31,6 +33,8 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user }: EditUser
                 businessName: user.name || '', // Assuming name maps to businessName in the simplified view, but we should likely fetch full details if needed. For now using name as businessName might be ambiguous if mapped from tenant.businessName
                 password: '',
                 status: user.status === 'active' ? 'ACTIVE' : user.status === 'inactive' ? 'PAUSED' : 'ACTIVE', // Map to backend enum
+                systemPrompt: user.systemPrompt || '',
+                aiModel: user.aiModel || 'gpt-3.5-turbo',
             });
         }
     }, [user]);
@@ -57,6 +61,8 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user }: EditUser
                 phone: formData.phone,
                 businessName: formData.businessName,
                 status: formData.status,
+                systemPrompt: formData.systemPrompt,
+                aiModel: formData.aiModel,
             };
 
             if (formData.password) {
@@ -157,6 +163,34 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user }: EditUser
                             <option value="ACTIVE">{t('users.table.active')}</option>
                             <option value="PAUSED">{t('users.table.inactive')}</option>
                             <option value="BANNED">Banned</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            {t('bot.systemPrompt')}
+                        </label>
+                        <textarea
+                            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                            rows={4}
+                            value={formData.systemPrompt}
+                            onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
+                            placeholder="Enter system prompt instructions..."
+                        />
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            {t('bot.aiModel')}
+                        </label>
+                        <select
+                            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                            value={formData.aiModel}
+                            onChange={(e) => setFormData({ ...formData, aiModel: e.target.value })}
+                        >
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            <option value="gpt-4">GPT-4</option>
+                            <option value="gpt-4-turbo">GPT-4 Turbo</option>
                         </select>
                     </div>
 
