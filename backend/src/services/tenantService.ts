@@ -119,7 +119,8 @@ export class TenantService {
         }
 
         // Fallback to database
-        const tenant = await prisma.tenant.findUnique({
+        // 1. Try finding by Tenant.twilioPhone
+        let tenant = await prisma.tenant.findUnique({
             where: { twilioPhone: phoneNumber },
             select: {
                 id: true,
@@ -133,8 +134,34 @@ export class TenantService {
             },
         });
 
+        // 2. Fallback: Try finding by User.phone
+        if (!tenant) {
+            // Find user with this phone who has a tenant
+            const user = await prisma.user.findFirst({
+                where: { phone: phoneNumber },
+                include: {
+                    tenant: {
+                        select: {
+                            id: true,
+                            businessName: true,
+                            walletBalance: true,
+                            systemPrompt: true,
+                            aiModel: true,
+                            twilioSid: true,
+                            twilioToken: true,
+                            status: true,
+                        }
+                    }
+                }
+            });
+
+            if (user && user.tenant) {
+                tenant = user.tenant;
+            }
+        }
+
         if (tenant) {
-            // Cache the mapping
+            // Cache the mapping for future speed
             await redis.setex(cacheKey, CacheTTL.phoneMapping, tenant.id);
         }
 

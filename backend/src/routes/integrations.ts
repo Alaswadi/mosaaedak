@@ -35,9 +35,10 @@ router.use(async (req: Request, res: Response, next: NextFunction) => {
 router.get('/n8n/context', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { phone } = phoneQuerySchema.parse(req.query);
+        const cleanPhone = phone.trim();
 
-        // Find tenant by their Twilio phone number
-        const tenant = await tenantService.getTenantByPhone(phone);
+        // Find tenant by their Twilio phone number (or User phone as fallback)
+        const tenant = await tenantService.getTenantByPhone(cleanPhone);
 
         if (!tenant) {
             res.status(404).json({
