@@ -31,6 +31,19 @@ router.get('/analytics', async (req: Request, res: Response, next: NextFunction)
 });
 
 /**
+ * GET /api/admin/users/analytics
+ * Get user analytics (Total, Active Today, New, Avg Messages)
+ */
+router.get('/users/analytics', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const analytics = await usageService.getUsersAnalytics();
+        res.json(analytics);
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
  * GET /api/admin/settings/n8n-key
  * Get N8N integration API key
  */

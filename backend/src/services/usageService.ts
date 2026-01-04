@@ -274,6 +274,69 @@ export class UsageService {
             }))
         };
     }
+    async getUsersAnalytics() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        const [
+            totalUsersResult,
+            activeTodayResult,
+            newUsersResult,
+            totalMessages
+        ] = await Promise.all([
+            // Total Users (Distinct Inbound phones)
+            prisma.$queryRaw`
+                SELECT COUNT(DISTINCT "fromPhone")::int as count
+                FROM "UsageLog"
+                WHERE "direction" = 'INBOUND'
+                AND "fromPhone" IS NOT NULL
+            `,
+
+            // Active Today
+            prisma.$queryRaw`
+                SELECT COUNT(DISTINCT "fromPhone")::int as count
+                FROM "UsageLog"
+                WHERE "direction" = 'INBOUND'
+                AND "createdAt" >= ${today}
+                AND "fromPhone" IS NOT NULL
+            `,
+
+            // New This Week (First message within last 7 days)
+            prisma.$queryRaw`
+                SELECT COUNT(DISTINCT "fromPhone")::int as count
+                FROM "UsageLog"
+                WHERE "direction" = 'INBOUND'
+                AND "fromPhone" IS NOT NULL
+                AND "fromPhone" NOT IN (
+                    SELECT DISTINCT "fromPhone"
+                    FROM "UsageLog"
+                    WHERE "direction" = 'INBOUND'
+                    AND "createdAt" < ${oneWeekAgo}
+                )
+            `,
+
+            // Total Messages (Inbound)
+            prisma.usageLog.count({
+                where: { direction: 'INBOUND' }
+            })
+        ]);
+
+        const totalUsers = Number((totalUsersResult as any)[0]?.count || 0);
+        const activeToday = Number((activeTodayResult as any)[0]?.count || 0);
+        const newUsers = Number((newUsersResult as any)[0]?.count || 0);
+
+        const avgMessages = totalUsers > 0 ? (totalMessages / totalUsers).toFixed(1) : '0';
+
+        return {
+            totalUsers,
+            activeToday,
+            newThisWeek: newUsers,
+            avgMessagesPerUser: avgMessages
+        };
+    }
 }
 
 export const usageService = new UsageService();

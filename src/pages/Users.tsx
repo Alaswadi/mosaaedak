@@ -4,7 +4,6 @@ import Sidebar from '../components/Sidebar';
 import UserStatsCards from '../components/widgets/UserStatsCards';
 import UsersTable from '../components/widgets/UsersTable';
 import { useLanguage } from '../contexts/LanguageContext';
-import { userStatsData } from '../data/usersData';
 import api, { type User } from '../services/api';
 import { AddUserModal } from '../components/modals/AddUserModal';
 import { EditUserModal } from '../components/modals/EditUserModal';
@@ -21,6 +20,36 @@ export function Users() {
     const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const { t, isRTL } = useLanguage();
+
+    // Stats state
+    const [stats, setStats] = useState({
+        total: 0,
+        active: 0,
+        new: 0,
+        avg: '0'
+    });
+
+    const fetchStats = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/admin/users/analytics`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setStats({
+                    total: data.totalUsers,
+                    active: data.activeToday,
+                    new: data.newThisWeek,
+                    avg: data.avgMessagesPerUser
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch user stats:', error);
+        }
+    };
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -62,6 +91,7 @@ export function Users() {
 
     useEffect(() => {
         fetchUsers();
+        fetchStats();
     }, [fetchUsers]);
 
     const handleUserAdded = () => {
@@ -91,6 +121,38 @@ export function Users() {
     const onManageBot = (user: User) => {
         navigate(`/admin/users/${user.id}/bot-config`);
     };
+
+    // Map stats to card format
+    const statsData = [
+        {
+            id: 'total-users',
+            label: 'Total Users',
+            value: stats.total.toLocaleString(),
+            icon: 'users' as const,
+            trend: 12.5 // Mock growth for now
+        },
+        {
+            id: 'active-today',
+            label: 'Active Today',
+            value: stats.active.toLocaleString(),
+            icon: 'active' as const,
+            trend: 8.2 // Mock growth
+        },
+        {
+            id: 'new-active',
+            label: 'New This Week',
+            value: stats.new.toLocaleString(),
+            icon: 'new' as const,
+            trend: 23.1 // Mock growth
+        },
+        {
+            id: 'avg-messages',
+            label: 'Avg Messages/User',
+            value: stats.avg,
+            icon: 'messages' as const,
+            trend: -2.4 // Mock growth
+        }
+    ];
 
     return (
         <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900">
@@ -130,7 +192,7 @@ export function Users() {
                 {/* Page content */}
                 <div className="p-6 lg:p-8">
                     {/* Stats cards */}
-                    <UserStatsCards stats={userStatsData} />
+                    <UserStatsCards stats={statsData} />
 
                     {/* Users table */}
                     <div className="mt-6">
