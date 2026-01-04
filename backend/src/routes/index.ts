@@ -5,6 +5,7 @@ import paymentRoutes from './payments.js';
 import adminRoutes from './admin.js';
 import webhookRoutes from './webhooks.js';
 import integrationRoutes from './integrations.js';
+import conversationRoutes from './conversations.js';
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.use('/payments', paymentRoutes);
 router.use('/admin', adminRoutes);
 router.use('/webhooks', webhookRoutes);
 router.use('/integrations', integrationRoutes);
+router.use('/conversations', conversationRoutes);
 
 export default router;

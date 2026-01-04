@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import CustomerDashboard from './pages/CustomerDashboard';
 import TopUp from './pages/TopUp';
 import BotConfig from './pages/BotConfig';
+import ConversationHistory from './pages/ConversationHistory';
 
 // Auth pages
 import Login from './pages/Login';
@@ -74,6 +75,7 @@ function AppRoutes() {
 
       {/* Customer Routes */}
       <Route path="/customer/dashboard" element={<ProtectedRoute><CustomerDashboard /></ProtectedRoute>} />
+      <Route path="/customer/history" element={<ProtectedRoute><ConversationHistory /></ProtectedRoute>} />
       <Route path="/customer/topup" element={<ProtectedRoute><TopUp /></ProtectedRoute>} />
 
       {/* Redirect root based on auth status */}

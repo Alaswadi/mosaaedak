@@ -132,6 +132,11 @@ class ApiClient {
         return data;
     }
 
+    // Generic public methods
+    public async get<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+        return this.request<T>(endpoint, { ...options, method: 'GET' });
+    }
+
     // Auth endpoints
     async register(email: string, password: string, name: string, businessName: string) {
         const result = await this.request<{ user: User; token: string }>('/auth/register', {
