@@ -166,18 +166,7 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user }: EditUser
                         </select>
                     </div>
 
-                    <div>
-                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                            {t('bot.systemPrompt')}
-                        </label>
-                        <textarea
-                            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
-                            rows={4}
-                            value={formData.systemPrompt}
-                            onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
-                            placeholder="Enter system prompt instructions..."
-                        />
-                    </div>
+
 
                     <div>
                         <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
