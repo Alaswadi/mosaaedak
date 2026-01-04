@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
-# Install build dependencies for native modules (bcrypt)
-RUN apk add --no-cache python3 make g++
+# Install build dependencies for native modules (bcrypt) and curl for healthcheck
+RUN apk add --no-cache python3 make g++ curl
 
 WORKDIR /app
 
