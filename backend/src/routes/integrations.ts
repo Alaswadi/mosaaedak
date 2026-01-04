@@ -16,6 +16,7 @@ const usageBodySchema = z.object({
     cost: z.number().optional(),
     deduct: z.boolean().optional(),
     messageId: z.string().optional(),
+    output: z.string().optional(), // Pass-through field for flow continuity
 });
 
 // Middleware: Validate API Key
@@ -106,6 +107,7 @@ router.post('/n8n/usage', async (req: Request, res: Response, next: NextFunction
             success: true,
             logId: log.id,
             cost: log.cost,
+            output: body.output, // Echo back the output for n8n flow
         });
 
     } catch (error) {
