@@ -7,10 +7,6 @@ import ServerStatus from '../components/widgets/ServerStatus';
 import LiveChatLogs from '../components/widgets/LiveChatLogs';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
-    statsData,
-    queriesChartData,
-    userEngagementData,
-    chatLogsData,
     serverStatus,
 } from '../data/dashboardData';
 
@@ -54,7 +50,21 @@ export function Dashboard() {
     }
 
     // Transform backend data to frontend props
-    const stats = dashboardData ? [
+    if (!dashboardData) {
+        return (
+            <div className="flex h-screen flex-col items-center justify-center bg-neutral-100 dark:bg-neutral-900">
+                <p className="mb-4 text-red-500">Failed to load dashboard data.</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
+
+    const stats = [
         {
             id: 'total-queries',
             label: 'Total Queries',
@@ -83,33 +93,27 @@ export function Dashboard() {
             icon: 'response' as const,
             trend: dashboardData.stats.responseGrowth,
         },
-    ] : statsData;
+    ];
 
     // Transform chart data (daily stats to chart points)
-    // Backend returns [{ date: '2023-01-01', count: 10 }]
-    // We need to map it to format relevant for chart.
-    // If we want monthly, backend needs to aggregate by month or we do it here. 
-    // Given the task is to show *something* live, let's just map the daily data to a format the chart can accept, 
-    // OR just stick to mocked chart for now if data is sparse?
-    // Best effort: show daily data if available, otherwise fallback or empty.
-    const queriesChart = dashboardData && dashboardData.chartData ?
+    const queriesChart = dashboardData.chartData ?
         dashboardData.chartData.map((d: any) => ({
             date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            value: Number(d.count) // Ensure number
-        })) : queriesChartData;
+            value: Number(d.count)
+        })) : [];
 
-    const userEngagement = dashboardData ? [
+    const userEngagement = [
         { name: 'New Users', value: dashboardData.userEngagement.newUsers, color: 'accent-yellow' },
         { name: 'Returning Users', value: dashboardData.userEngagement.returningUsers, color: 'accent-blue' },
-    ] : userEngagementData;
+    ];
 
-    const chatLogs = dashboardData ? dashboardData.recentLogs.map((log: any) => ({
+    const chatLogs = dashboardData.recentLogs.map((log: any) => ({
         id: log.id,
-        name: log.user, // Or tenant business name if we prefer
+        name: log.user,
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(log.tenant)}&background=random`,
         message: log.message,
         time: new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    })) : chatLogsData;
+    }));
 
 
     return (
