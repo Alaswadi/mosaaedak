@@ -74,8 +74,8 @@ export function Users() {
                     status: tenant.status === 'ACTIVE' ? 'active' : 'inactive',
                     lastActive: new Date(tenant.user?.lastLoginAt || Date.now()).toLocaleDateString(), // simplified for now
                     joinedDate: joinedDate,
-                    conversationsCount: 0, // Placeholder
-                    messagesCount: 0, // Placeholder
+                    conversationsCount: (tenant as any).conversationsCount || 0, // Now coming from backend
+                    messagesCount: 0, // Still placeholder until we want to show total messages too
                     systemPrompt: tenant.systemPrompt,
                     aiModel: tenant.aiModel
                 };
