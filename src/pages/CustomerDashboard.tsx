@@ -273,11 +273,8 @@ export function CustomerDashboard() {
                                                         </svg>
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-sm text-neutral-900 dark:text-white truncate">
+                                                        <p className="text-sm text-neutral-900 dark:text-white whitespace-pre-wrap break-words">
                                                             {log.content}
-                                                        </p>
-                                                        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                                                            {new Date(log.createdAt).toLocaleString()} • {formatCurrency(Number(log.cost))}
                                                         </p>
                                                     </div>
                                                 </div>
