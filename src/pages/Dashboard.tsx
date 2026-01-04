@@ -45,6 +45,14 @@ export function Dashboard() {
         fetchAnalytics();
     }, []);
 
+    if (isLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-neutral-100 dark:bg-neutral-900">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent"></div>
+            </div>
+        );
+    }
+
     // Transform backend data to frontend props
     const stats = dashboardData ? [
         {
