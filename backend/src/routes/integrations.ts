@@ -103,9 +103,29 @@ router.post('/n8n/usage', async (req: Request, res: Response, next: NextFunction
             }
         );
 
+        // If output is provided, log it as an OUTBOUND message (bot reply)
+        // We set cost to 0 and deduct to false as the cost is typically covered by the inbound trigger
+        let replyLogId = undefined;
+        if (body.output) {
+            const replyLog = await usageService.logMessage(
+                body.tenantId,
+                'OUTBOUND',
+                body.output,
+                undefined,
+                undefined,
+                undefined,
+                {
+                    cost: 0,
+                    deduct: false
+                }
+            );
+            replyLogId = replyLog.id;
+        }
+
         res.json({
             success: true,
             logId: log.id,
+            replyLogId,
             cost: log.cost,
             output: body.output, // Echo back the output for n8n flow
         });
