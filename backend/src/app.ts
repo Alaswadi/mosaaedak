@@ -23,6 +23,8 @@ app.set('trust proxy', 1);
 // CORS configuration
 const allowedOrigins = [
     process.env.FRONTEND_URL,
+    'http://localhost:9000', // New Frontend Port
+    'http://localhost:9002', // New Backend Port (just in case)
     'http://localhost:5173', // Vite local dev
     'http://localhost:4173', // Vite preview
     'http://localhost:3000', // Alternative local port

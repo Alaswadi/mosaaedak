@@ -45,7 +45,7 @@ services:
       dockerfile: Dockerfile
     container_name: mosaaedak-api
     ports:
-      - "3001:3000"
+      - "9002:3000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${DB_USER:-mosaaedak}:${DB_PASSWORD:-mosaaedak_secret}@postgres:5432/mosaaedak?schema=public
@@ -57,8 +57,8 @@ services:
       - COST_PER_MESSAGE=0.03
       - MONTHLY_SUBSCRIPTION_FEE=29.00
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
-      - API_URL=${API_URL:-http://localhost:3001}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:9000}
+      - API_URL=${API_URL:-http://localhost:9002}
     volumes:
       - uploads_data:/app/uploads
     depends_on:
@@ -83,10 +83,10 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
       args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:3001/api}
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:9002/api}
     container_name: mosaaedak-frontend
     ports:
-      - "3000:80"
+      - "9000:80"
     depends_on:
       - backend
     networks:
