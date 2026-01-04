@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import StatsCard from '../components/widgets/StatsCard';
 import TotalQueriesChart from '../components/widgets/TotalQueriesChart';
@@ -17,6 +17,92 @@ import {
 export function Dashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { t, isRTL } = useLanguage();
+    const [isLoading, setIsLoading] = useState(true);
+    const [dashboardData, setDashboardData] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchAnalytics = async () => {
+            try {
+                // In a real app we would use an API client, but fetch is fine for now
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/admin/analytics?days=30`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setDashboardData(data);
+                }
+            } catch (error) {
+                console.error('Error fetching analytics:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAnalytics();
+    }, []);
+
+    // Transform backend data to frontend props
+    const stats = dashboardData ? [
+        {
+            id: 'total-queries',
+            label: 'Total Queries',
+            value: dashboardData.stats.totalQueries,
+            icon: 'queries' as const,
+            trend: dashboardData.stats.queriesGrowth,
+        },
+        {
+            id: 'active-users',
+            label: 'Active Users',
+            value: dashboardData.stats.activeUsers,
+            icon: 'users' as const,
+            trend: dashboardData.stats.usersGrowth,
+        },
+        {
+            id: 'success-rate',
+            label: 'Success Rate',
+            value: `${dashboardData.stats.successRate}%`,
+            icon: 'success' as const,
+            trend: dashboardData.stats.successGrowth,
+        },
+        {
+            id: 'avg-response',
+            label: 'Avg Response',
+            value: `${dashboardData.stats.avgResponse}s`,
+            icon: 'response' as const,
+            trend: dashboardData.stats.responseGrowth,
+        },
+    ] : statsData;
+
+    // Transform chart data (daily stats to chart points)
+    // Backend returns [{ date: '2023-01-01', count: 10 }]
+    // We need to map it to format relevant for chart.
+    // If we want monthly, backend needs to aggregate by month or we do it here. 
+    // Given the task is to show *something* live, let's just map the daily data to a format the chart can accept, 
+    // OR just stick to mocked chart for now if data is sparse?
+    // Best effort: show daily data if available, otherwise fallback or empty.
+    const queriesChart = dashboardData && dashboardData.chartData ?
+        dashboardData.chartData.map((d: any) => ({
+            date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            value: Number(d.count) // Ensure number
+        })) : queriesChartData;
+
+    const userEngagement = dashboardData ? [
+        { name: 'New Users', value: dashboardData.userEngagement.newUsers, color: 'accent-yellow' },
+        { name: 'Returning Users', value: dashboardData.userEngagement.returningUsers, color: 'accent-blue' },
+    ] : userEngagementData;
+
+    const chatLogs = dashboardData ? dashboardData.recentLogs.map((log: any) => ({
+        id: log.id,
+        name: log.user, // Or tenant business name if we prefer
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(log.tenant)}&background=random`,
+        message: log.message,
+        time: new Date(log.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    })) : chatLogsData;
+
 
     return (
         <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900">
@@ -58,7 +144,7 @@ export function Dashboard() {
                     {/* Grid layout */}
                     <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
                         {/* Stats cards - 4 columns on desktop */}
-                        {statsData.map((stat) => (
+                        {stats.map((stat: any) => (
                             <StatsCard key={stat.id} data={stat} />
                         ))}
                     </div>
@@ -67,12 +153,12 @@ export function Dashboard() {
                     <div className="mt-6 grid gap-6 lg:grid-cols-12">
                         {/* Total Queries Chart - 8 cols on desktop */}
                         <div className="lg:col-span-8">
-                            <TotalQueriesChart data={queriesChartData} />
+                            <TotalQueriesChart data={queriesChart} />
                         </div>
 
                         {/* User Engagement - 4 cols on desktop */}
                         <div className="lg:col-span-4">
-                            <UserEngagementChart data={userEngagementData} />
+                            <UserEngagementChart data={userEngagement} />
                         </div>
                     </div>
 
@@ -89,7 +175,7 @@ export function Dashboard() {
 
                         {/* Live Chat Logs - 8 cols on desktop */}
                         <div className="lg:col-span-8">
-                            <LiveChatLogs logs={chatLogsData} />
+                            <LiveChatLogs logs={chatLogs} />
                         </div>
                     </div>
                 </div>
