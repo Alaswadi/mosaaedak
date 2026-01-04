@@ -168,20 +168,7 @@ export function EditUserModal({ isOpen, onClose, onUserUpdated, user }: EditUser
 
 
 
-                    <div>
-                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                            {t('bot.aiModel')}
-                        </label>
-                        <select
-                            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
-                            value={formData.aiModel}
-                            onChange={(e) => setFormData({ ...formData, aiModel: e.target.value })}
-                        >
-                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                            <option value="gpt-4">GPT-4</option>
-                            <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                        </select>
-                    </div>
+
 
                     <div>
                         <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
