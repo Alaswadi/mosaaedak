@@ -250,32 +250,26 @@ export function CustomerDashboard() {
                                         </div>
                                     ) : (
                                         recentLogs.slice(0, 5).map((log) => (
-                                            <div key={log.id} className="p-4 hover:bg-neutral-50 dark:hover:bg-neutral-700/50">
-                                                <div className="flex items-start gap-3">
-                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${log.direction === 'INBOUND'
-                                                        ? 'bg-green-100 dark:bg-green-900/30'
-                                                        : 'bg-blue-100 dark:bg-blue-900/30'
-                                                        }`}>
-                                                        <svg
-                                                            className={`w-4 h-4 ${log.direction === 'INBOUND'
-                                                                ? 'text-green-600 dark:text-green-400'
-                                                                : 'text-blue-600 dark:text-blue-400'
-                                                                }`}
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                        >
-                                                            {log.direction === 'INBOUND' ? (
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                                            ) : (
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                                            )}
-                                                        </svg>
+                                            <div key={log.id} className="p-4 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition">
+                                                <div className={`flex flex-col gap-1 ${log.direction === 'INBOUND' ? 'items-start' : 'items-end'}`}>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${log.direction === 'INBOUND'
+                                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                                            : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                                            }`}>
+                                                            {log.direction === 'INBOUND'
+                                                                ? (log.fromPhone || (isRTL ? 'مستخدم' : 'User'))
+                                                                : (isRTL ? 'المساعد الذكي' : 'Assistant')}
+                                                        </span>
+                                                        <span className="text-xs text-neutral-400">
+                                                            {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-sm text-neutral-900 dark:text-white whitespace-pre-wrap break-words">
-                                                            {log.content}
-                                                        </p>
+                                                    <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${log.direction === 'INBOUND'
+                                                        ? 'bg-white border border-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white rounded-tl-none'
+                                                        : 'bg-primary-50 text-neutral-900 dark:bg-primary-900/20 dark:text-white rounded-tr-none'
+                                                        }`}>
+                                                        <p className="whitespace-pre-wrap break-words">{log.content}</p>
                                                     </div>
                                                 </div>
                                             </div>

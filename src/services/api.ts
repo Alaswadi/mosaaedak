@@ -56,6 +56,8 @@ export interface UsageLog {
     direction: 'INBOUND' | 'OUTBOUND';
     content: string;
     cost: number;
+    fromPhone?: string;
+    toPhone?: string;
     createdAt: string;
 }
 
