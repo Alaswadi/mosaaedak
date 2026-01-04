@@ -19,11 +19,11 @@ export interface Message {
 export const conversationService = {
     getConversations: async (): Promise<Conversation[]> => {
         const response = await api.get<{ conversations: Conversation[] }>('/conversations');
-        return response.data.conversations;
+        return response.conversations;
     },
 
     getMessages: async (phoneNumber: string): Promise<Message[]> => {
         const response = await api.get<{ messages: Message[] }>(`/conversations/${phoneNumber}/messages`);
-        return response.data.messages;
+        return response.messages;
     }
 };
