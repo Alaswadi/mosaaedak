@@ -65,7 +65,11 @@ export class TenantService {
         });
 
         // Invalidate config cache
-        await redis.del(CacheKeys.tenantConfig(tenantId));
+        try {
+            await redis.del(CacheKeys.tenantConfig(tenantId));
+        } catch (error) {
+            console.error('Redis error (non-fatal):', error);
+        }
 
         return tenant;
     }
@@ -92,15 +96,19 @@ export class TenantService {
             },
         });
 
-        // Update phone mapping cache
-        await redis.setex(
-            CacheKeys.tenantByPhone(input.twilioPhone),
-            CacheTTL.phoneMapping,
-            tenantId
-        );
+        try {
+            // Update phone mapping cache
+            await redis.setex(
+                CacheKeys.tenantByPhone(input.twilioPhone),
+                CacheTTL.phoneMapping,
+                tenantId
+            );
 
-        // Invalidate config cache
-        await redis.del(CacheKeys.tenantConfig(tenantId));
+            // Invalidate config cache
+            await redis.del(CacheKeys.tenantConfig(tenantId));
+        } catch (error) {
+            console.error('Redis error (non-fatal):', error);
+        }
 
         return tenant;
     }
