@@ -2,6 +2,7 @@ import prisma from '../config/database.js';
 import { config } from '../config/index.js';
 import { walletService } from './walletService.js';
 import { MessageDirection } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 
 export class UsageService {
     /**
@@ -13,9 +14,24 @@ export class UsageService {
         content: string,
         fromPhone?: string,
         toPhone?: string,
-        messageId?: string
+        messageId?: string,
+        options: { cost?: number; deduct?: boolean } = {}
     ) {
-        const cost = config.costPerMessage;
+        // Use provided cost or fallback to default
+        const cost = options.cost !== undefined ? options.cost : config.costPerMessage;
+
+        // Use provided deduct flag or fallback to default logic (deduct on OUTBOUND)
+        const shouldDeduct = options.deduct !== undefined
+            ? options.deduct
+            : direction === 'OUTBOUND';
+
+        // Check balance first if we need to deduct
+        if (shouldDeduct) {
+            const hasBalance = await walletService.hasSufficientBalance(tenantId, cost);
+            if (!hasBalance) {
+                throw new Error('Insufficient balance');
+            }
+        }
 
         // Create usage log
         const log = await prisma.usageLog.create({
@@ -23,15 +39,15 @@ export class UsageService {
                 tenantId,
                 direction,
                 content,
-                cost,
+                cost: new Decimal(cost), // Store the actual cost used
                 fromPhone,
                 toPhone,
                 messageId,
             },
         });
 
-        // Deduct from wallet (only for outbound messages)
-        if (direction === 'OUTBOUND') {
+        // Deduct from wallet
+        if (shouldDeduct) {
             await walletService.deductBalance(tenantId, cost);
         }
 

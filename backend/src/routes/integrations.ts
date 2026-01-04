@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { tenantService, settingsService } from '../services/index.js';
+import { tenantService, settingsService, usageService } from '../services/index.js';
 import { z } from 'zod';
 
 const router = Router();
@@ -7,6 +7,15 @@ const router = Router();
 // Validation schema
 const phoneQuerySchema = z.object({
     phone: z.string().min(5),
+});
+
+const usageBodySchema = z.object({
+    tenantId: z.string().uuid(),
+    direction: z.enum(['INBOUND', 'OUTBOUND']),
+    content: z.string(),
+    cost: z.number().optional(),
+    deduct: z.boolean().optional(),
+    messageId: z.string().optional(),
 });
 
 // Middleware: Validate API Key
@@ -66,6 +75,48 @@ router.get('/n8n/context', async (req: Request, res: Response, next: NextFunctio
         });
 
     } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * POST /api/integrations/n8n/usage
+ * Log message usage and optionally deduct balance
+ * Used by n8n to report usage (e.g. 0.03 per message)
+ */
+router.post('/n8n/usage', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const body = usageBodySchema.parse(req.body);
+
+        // Log message and deduct balance if requested
+        const log = await usageService.logMessage(
+            body.tenantId,
+            body.direction,
+            body.content,
+            undefined, // from
+            undefined, // to
+            body.messageId,
+            {
+                cost: body.cost,
+                deduct: body.deduct
+            }
+        );
+
+        res.json({
+            success: true,
+            logId: log.id,
+            cost: log.cost,
+        });
+
+    } catch (error) {
+        // If insufficient balance, return 402 Payment Required
+        if (error instanceof Error && error.message === 'Insufficient balance') {
+            res.status(402).json({
+                error: 'Payment Required',
+                message: 'Insufficient balance'
+            });
+            return;
+        }
         next(error);
     }
 });
