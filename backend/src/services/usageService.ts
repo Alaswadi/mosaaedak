@@ -188,11 +188,11 @@ export class UsageService {
             // Let's get daily counts for the requested period.
             prisma.$queryRaw`
                 SELECT 
-                  DATE("createdAt") as date,
-                  COUNT(*) as count
+                  "createdAt"::date as date,
+                  COUNT(*)::int as count
                 FROM "UsageLog"
                 WHERE "createdAt" >= ${startDate}
-                GROUP BY DATE("createdAt")
+                GROUP BY "createdAt"::date
                 ORDER BY date ASC
             `,
 
@@ -220,7 +220,7 @@ export class UsageService {
             // New Users (approximate: count of distinct fromPhone where min(createdAt) >= startDate)
             // This is complex in Prisma. Using raw query for efficiency.
             prisma.$queryRaw`
-                SELECT COUNT(DISTINCT "fromPhone") as count
+                SELECT COUNT(DISTINCT "fromPhone")::int as count
                 FROM "UsageLog"
                 WHERE "direction" = 'INBOUND'
                 AND "fromPhone" IS NOT NULL
