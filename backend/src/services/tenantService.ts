@@ -7,7 +7,7 @@ import {
     AdminUpdateTenantInput
 } from '../utils/validation.js';
 import { encrypt, decrypt } from '../utils/encryption.js';
-import { TenantStatus } from '@prisma/client';
+import { TenantStatus, Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from './authService.js';
 
@@ -276,61 +276,23 @@ export class TenantService {
 
         // Get conversation counts for these tenants
         const tenantIds = tenants.map(t => t.id);
-
-        // We want to count distinct phone numbers that have interacted with each tenant
-        // Using Prisma groupBy is the cleanest way
-        // We look for INBOUND messages to find users who Messaged the bot
-        // OR OUTBOUND to find users the bot Messaged
-        // Actually, let's just count unique 'fromPhone' on INBOUND and 'toPhone' on OUTBOUND
-        // For simplicity and performance, effectively 'conversations' are usually unique phone numbers involved
-
-        // Using a raw query might be easier for "distinct phone number per tenant"
-        // But let's try prisma groupBy on UsageLog
-
-        // Group by tenantId and count distinct fromPhone for inbound
-        // Note: This is an approximation. A perfect conversation count would union from/to. 
-        // Given the use case, "Active Users" usually implies people messaging the bot. 
-        // Let's stick to unique INBOUND phones as "Conversations" (People who initiated or replied)
-
-        const conversationCounts = await prisma.usageLog.groupBy({
-            by: ['tenantId'],
-            where: {
-                tenantId: { in: tenantIds },
-                direction: 'INBOUND'
-            },
-            _count: {
-                fromPhone: true // Distinct is not directly supported in _count with groupBy in older prisma, but 'distinct' option exists in findMany
-            },
-        });
-
-        // Correct approach for distinct count per group in Prisma is tricky without raw query.
-        // Let's use a raw query for 100% correctness if we want distinct phones.
-        // SELECT "tenantId", COUNT(DISTINCT "fromPhone") as count FROM "UsageLog" ...
-
-        // Alternatively, since we are iterating, we can do it in memory if usage is low, but that's bad for scaling.
-        // Let's use the groupBy above, but be aware it counts MESSAGES not unique users if we don't handle distinct.
-        // Wait, standard groupBy count counts rows. That's "Total Messages".
-
-        // To get unique conversations (users), we need distinct phones.
-        // Let's use a Raw Query for correctness.
-
         const countsMap = new Map<string, number>();
 
         if (tenantIds.length > 0) {
             const rawCounts = await prisma.$queryRaw`
                 SELECT "tenantId", COUNT(DISTINCT "fromPhone") as count
                 FROM "UsageLog"
-                WHERE "tenantId" IN (${prisma.join(tenantIds)})
+                WHERE "tenantId" IN (${Prisma.join(tenantIds)})
                 AND "direction" = 'INBOUND'
                 GROUP BY "tenantId"
             ` as { tenantId: string, count: bigint }[];
 
-            rawCounts.forEach(row => {
+            rawCounts.forEach((row) => {
                 countsMap.set(row.tenantId, Number(row.count));
             });
         }
 
-        const tenantsWithStats = tenants.map(tenant => ({
+        const tenantsWithStats = tenants.map((tenant) => ({
             ...tenant,
             conversationsCount: countsMap.get(tenant.id) || 0
         }));

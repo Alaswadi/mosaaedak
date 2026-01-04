@@ -102,7 +102,7 @@ export function TotalQueriesChart({ data }: TotalQueriesChartProps) {
                                     dominantBaseline="middle"
                                     className="fill-neutral-500 text-xs dark:fill-neutral-400"
                                 >
-                                    {(tick / 1000).toFixed(0)}k
+                                    {tick >= 1000 ? `${(tick / 1000).toFixed(1)}k` : tick.toFixed(0)}
                                 </text>
                             </g>
                         ))}
@@ -157,22 +157,24 @@ export function TotalQueriesChart({ data }: TotalQueriesChartProps) {
                         className="pointer-events-none absolute z-10 rounded-lg bg-neutral-900 px-3 py-2 text-sm text-white shadow-lg dark:bg-neutral-700"
                         style={{
                             left: hoveredPoint.x,
-                            top: hoveredPoint.y - 50,
+                            top: Math.max(0, hoveredPoint.y - 50),
                             transform: 'translateX(-50%)',
                         }}
                     >
                         <div className="font-semibold">{hoveredPoint.value.toLocaleString()}</div>
                         <div className="text-neutral-400">{hoveredPoint.date}</div>
-                        {/* Speech bubble arrow */}
-                        <div
-                            className="absolute left-1/2 h-0 w-0 -translate-x-1/2"
-                            style={{
-                                top: '100%',
-                                borderLeft: '6px solid transparent',
-                                borderRight: '6px solid transparent',
-                                borderTop: '6px solid rgb(23, 23, 23)',
-                            }}
-                        />
+                        {/* Speech bubble arrow - hidden if tooltip is forced to top 0 to avoid visual disconnect */}
+                        {hoveredPoint.y - 50 > 0 && (
+                            <div
+                                className="absolute left-1/2 h-0 w-0 -translate-x-1/2"
+                                style={{
+                                    top: '100%',
+                                    borderLeft: '6px solid transparent',
+                                    borderRight: '6px solid transparent',
+                                    borderTop: '6px solid rgb(23, 23, 23)',
+                                }}
+                            />
+                        )}
                     </div>
                 )}
             </div>
