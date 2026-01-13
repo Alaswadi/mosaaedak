@@ -19,6 +19,7 @@ export interface User {
     messagesCount?: number;
     systemPrompt?: string;
     aiModel?: string;
+    facebookPrompt?: string;
 }
 
 export interface Tenant {
@@ -28,6 +29,7 @@ export interface Tenant {
     status: 'ACTIVE' | 'PAUSED' | 'BANNED';
     systemPrompt?: string;
     aiModel: string;
+    facebookPrompt?: string;
     twilioPhone?: string;
     monthlyFee: number;
     nextBillingDate?: string;
@@ -173,10 +175,10 @@ class ApiClient {
         return this.request<{ balance: number }>('/tenant/wallet');
     }
 
-    async updateBotConfig(systemPrompt?: string, aiModel?: string) {
-        return this.request<{ systemPrompt: string; aiModel: string }>('/tenant/bot-config', {
+    async updateBotConfig(systemPrompt?: string, aiModel?: string, facebookPrompt?: string) {
+        return this.request<{ systemPrompt: string; aiModel: string; facebookPrompt: string }>('/tenant/bot-config', {
             method: 'PATCH',
-            body: JSON.stringify({ systemPrompt, aiModel }),
+            body: JSON.stringify({ systemPrompt, aiModel, facebookPrompt }),
         });
     }
 
@@ -281,7 +283,7 @@ class ApiClient {
         return this.request<Tenant & { user: User }>(`/admin/tenants/${id}`);
     }
 
-    async updateTenant(id: string, data: { name?: string; email?: string; phone?: string; businessName?: string; password?: string; status?: 'ACTIVE' | 'PAUSED' | 'BANNED'; systemPrompt?: string; aiModel?: string }) {
+    async updateTenant(id: string, data: { name?: string; email?: string; phone?: string; businessName?: string; password?: string; status?: 'ACTIVE' | 'PAUSED' | 'BANNED'; systemPrompt?: string; aiModel?: string; facebookPrompt?: string }) {
         return this.request<{ message: string; tenant: Tenant }>(`/admin/tenants/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(data),

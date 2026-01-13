@@ -60,6 +60,7 @@ model Tenant {
   // Bot Configuration
   systemPrompt    String?      @db.Text
   aiModel         String       @default("gpt-3.5-turbo")
+  facebookPrompt  String?      @db.Text
   
   // Status & Billing
   status          TenantStatus @default(ACTIVE)

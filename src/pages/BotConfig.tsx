@@ -13,6 +13,8 @@ export function BotConfig() {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [systemPrompt, setSystemPrompt] = useState('');
+    const [facebookPrompt, setFacebookPrompt] = useState('');
+    const [activeTab, setActiveTab] = useState<'system' | 'facebook'>('system');
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
@@ -77,6 +79,7 @@ export function BotConfig() {
                     setLoading(true);
                     const data = await api.getTenantDetails(userId);
                     setSystemPrompt(data.systemPrompt || '');
+                    setFacebookPrompt(data.facebookPrompt || '');
                 } catch (err: any) {
                     setError('Failed to load tenant details');
                     console.error(err);
@@ -102,10 +105,10 @@ export function BotConfig() {
         try {
             if (userId && isAdmin) {
                 // Admin updating customer bot
-                await api.updateTenant(userId, { systemPrompt });
+                await api.updateTenant(userId, { systemPrompt, facebookPrompt });
             } else {
                 // Fallback (shouldn't be reached given new requirements)
-                await api.updateBotConfig(systemPrompt);
+                await api.updateBotConfig(systemPrompt, undefined, facebookPrompt);
                 await refreshTenant();
             }
             setSuccess(true);
@@ -210,19 +213,59 @@ export function BotConfig() {
                                             ? 'هذه التعليمات تحدد شخصية وسلوك الروبوت الخاص بك. اكتب بوضوح ما تريد أن يفعله الروبوت.'
                                             : 'These instructions define your bot\'s personality and behavior. Clearly describe what you want your bot to do.'}
                                     </p>
+
+                                    {/* Tabs */}
+                                    <div className="flex border-b border-neutral-200 dark:border-neutral-700 mb-4">
+                                        <button
+                                            className={`px-4 py-2 text-sm font-medium ${activeTab === 'system'
+                                                ? 'text-primary-600 border-b-2 border-primary-600 dark:text-primary-400 dark:border-primary-400'
+                                                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300'
+                                                }`}
+                                            onClick={() => setActiveTab('system')}
+                                        >
+                                            {isRTL ? 'تعليمات النظام العامة' : 'General System Prompt'}
+                                        </button>
+                                        <button
+                                            className={`px-4 py-2 text-sm font-medium ${activeTab === 'facebook'
+                                                ? 'text-primary-600 border-b-2 border-primary-600 dark:text-primary-400 dark:border-primary-400'
+                                                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300'
+                                                }`}
+                                            onClick={() => setActiveTab('facebook')}
+                                        >
+                                            {isRTL ? 'ماسنجر فيسبوك' : 'Facebook Messenger'}
+                                        </button>
+                                    </div>
+
                                     <div className="prose-editor">
-                                        <ReactQuill
-                                            ref={quillRef}
-                                            theme="snow"
-                                            value={systemPrompt}
-                                            onChange={setSystemPrompt}
-                                            modules={modules}
-                                            formats={formats}
-                                            className="bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg [&_.ql-editor]:min-h-[500px]"
-                                            placeholder={isRTL
-                                                ? 'اكتب تعليمات الروبوت هنا...'
-                                                : 'Enter your bot instructions here...'}
-                                        />
+                                        {activeTab === 'system' ? (
+                                            <ReactQuill
+                                                key="system"
+                                                ref={quillRef}
+                                                theme="snow"
+                                                value={systemPrompt}
+                                                onChange={setSystemPrompt}
+                                                modules={modules}
+                                                formats={formats}
+                                                className="bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg [&_.ql-editor]:min-h-[500px]"
+                                                placeholder={isRTL
+                                                    ? 'اكتب تعليمات الروبوت العامة هنا...'
+                                                    : 'Enter your general bot instructions here...'}
+                                            />
+                                        ) : (
+                                            <ReactQuill
+                                                key="facebook"
+                                                ref={quillRef}
+                                                theme="snow"
+                                                value={facebookPrompt}
+                                                onChange={setFacebookPrompt}
+                                                modules={modules}
+                                                formats={formats}
+                                                className="bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg [&_.ql-editor]:min-h-[500px]"
+                                                placeholder={isRTL
+                                                    ? 'اكتب تعليمات خاصة بماسنجر فيسبوك (اتركها فارغة لاستخدام التعليمات العامة)...'
+                                                    : 'Enter specific instructions for Facebook Messenger (leave empty to use general instructions)...'}
+                                            />
+                                        )}
                                     </div>
                                 </div>
 
@@ -235,7 +278,13 @@ export function BotConfig() {
                                         {promptTemplates.map((template, index) => (
                                             <button
                                                 key={index}
-                                                onClick={() => setSystemPrompt(isRTL ? template.promptAr : template.promptEn)}
+                                                onClick={() => {
+                                                    if (activeTab === 'system') {
+                                                        setSystemPrompt(isRTL ? template.promptAr : template.promptEn);
+                                                    } else {
+                                                        setFacebookPrompt(isRTL ? template.promptAr : template.promptEn);
+                                                    }
+                                                }}
                                                 className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-600 hover:border-primary-300 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition text-left"
                                             >
                                                 <p className="font-medium text-neutral-900 dark:text-white">

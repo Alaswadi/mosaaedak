@@ -27,6 +27,7 @@ export const updateProfileSchema = z.object({
 export const updateBotConfigSchema = z.object({
     systemPrompt: z.string().max(100000, 'System prompt too long').optional(),
     aiModel: z.enum(['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo']).optional(),
+    facebookPrompt: z.string().max(100000, 'Facebook prompt too long').optional(),
 });
 
 // Twilio credentials schema
@@ -62,6 +63,7 @@ export const adminUpdateTenantSchema = z.object({
     status: z.enum(['ACTIVE', 'PAUSED', 'BANNED']).optional(),
     systemPrompt: z.string().max(100000).optional(),
     aiModel: z.enum(['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo']).optional(),
+    facebookPrompt: z.string().max(100000).optional(),
 });
 
 export const adminTopUpSchema = z.object({

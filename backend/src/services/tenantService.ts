@@ -25,6 +25,7 @@ export class TenantService {
                 twilioPhone: true,
                 systemPrompt: true,
                 aiModel: true,
+                facebookPrompt: true,
                 status: true,
                 monthlyFee: true,
                 nextBillingDate: true,
@@ -57,10 +58,12 @@ export class TenantService {
             data: {
                 systemPrompt: input.systemPrompt,
                 aiModel: input.aiModel,
+                facebookPrompt: input.facebookPrompt,
             },
             select: {
                 systemPrompt: true,
                 aiModel: true,
+                facebookPrompt: true,
             },
         });
 
@@ -136,6 +139,7 @@ export class TenantService {
                 walletBalance: true,
                 systemPrompt: true,
                 aiModel: true,
+                facebookPrompt: true,
                 twilioSid: true,
                 twilioToken: true,
                 status: true,
@@ -155,6 +159,7 @@ export class TenantService {
                             walletBalance: true,
                             systemPrompt: true,
                             aiModel: true,
+                            facebookPrompt: true,
                             twilioSid: true,
                             twilioToken: true,
                             status: true,
@@ -210,6 +215,7 @@ export class TenantService {
                 walletBalance: true,
                 systemPrompt: true,
                 aiModel: true,
+                facebookPrompt: true,
                 twilioSid: true,
                 twilioToken: true,
                 status: true,
@@ -227,6 +233,7 @@ export class TenantService {
             walletBalance: tenant.walletBalance.toString(),
             systemPrompt: tenant.systemPrompt,
             aiModel: tenant.aiModel,
+            facebookPrompt: tenant.facebookPrompt,
             status: tenant.status,
         };
         await redis.setex(cacheKey, CacheTTL.config, JSON.stringify(cacheData));
@@ -356,6 +363,7 @@ export class TenantService {
                         ...(status && { status }),
                         ...(systemPrompt !== undefined && { systemPrompt }),
                         ...(aiModel && { aiModel }),
+                        ...(input.facebookPrompt !== undefined && { facebookPrompt: input.facebookPrompt }),
                     },
                 });
             }
