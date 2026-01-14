@@ -28,5 +28,5 @@ RUN mkdir -p /app/uploads/proofs
 # Expose port
 EXPOSE 3000
 
-# Start the server
-CMD ["npm", "start"]
+# Start the server with DB sync
+CMD npx prisma db push && npm start
