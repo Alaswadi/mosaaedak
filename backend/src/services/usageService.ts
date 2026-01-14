@@ -1,8 +1,7 @@
 import prisma from '../config/database.js';
 import { config } from '../config/index.js';
 import { walletService } from './walletService.js';
-import { MessageDirection } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
+import { MessageDirection, Prisma } from '@prisma/client';
 
 export class UsageService {
     /**
@@ -39,7 +38,7 @@ export class UsageService {
                 tenantId,
                 direction,
                 content,
-                cost: new Decimal(cost), // Store the actual cost used
+                cost: new Prisma.Decimal(cost), // Store the actual cost used
                 fromPhone,
                 toPhone,
                 messageId,
@@ -120,8 +119,8 @@ export class UsageService {
             }),
         ]);
 
-        const inbound = messageStats.find(s => s.direction === 'INBOUND')?._count || 0;
-        const outbound = messageStats.find(s => s.direction === 'OUTBOUND')?._count || 0;
+        const inbound = messageStats.find((s: any) => s.direction === 'INBOUND')?._count || 0;
+        const outbound = messageStats.find((s: any) => s.direction === 'OUTBOUND')?._count || 0;
 
         return {
             period: `${days} days`,
@@ -204,7 +203,7 @@ export class UsageService {
                     createdAt: { gte: startDate },
                     fromPhone: { not: null }
                 }
-            }).then(res => res.length),
+            }).then((res: any) => res.length),
 
             // Recent Logs
             prisma.usageLog.findMany({
@@ -264,7 +263,7 @@ export class UsageService {
                 newUsers,
                 returningUsers
             },
-            recentLogs: recentLogs.map(log => ({
+            recentLogs: recentLogs.map((log: any) => ({
                 id: log.id,
                 user: log.fromPhone || log.toPhone || 'Unknown',
                 message: log.content,

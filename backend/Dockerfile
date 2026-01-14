@@ -9,8 +9,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-# Copy Prisma schema and generate client
+# Copy Prisma schema and config and generate client
 COPY prisma ./prisma/
+COPY prisma.config.ts ./
 RUN npx prisma generate
 
 # Copy source code

@@ -1,20 +1,20 @@
 import prisma from '../config/database.js';
 import { getRedis, CacheKeys, CacheTTL } from '../config/redis.js';
 import { config } from '../config/index.js';
-import { Decimal } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 
 export class WalletService {
     /**
      * Get tenant balance (Redis-first with DB fallback)
      */
-    async getBalance(tenantId: string): Promise<Decimal> {
+    async getBalance(tenantId: string): Promise<Prisma.Decimal> {
         const redis = getRedis();
         const cacheKey = CacheKeys.tenantBalance(tenantId);
 
         // Try cache first
         const cached = await redis.get(cacheKey);
         if (cached !== null) {
-            return new Decimal(cached);
+            return new Prisma.Decimal(cached);
         }
 
         // Fallback to database
@@ -38,13 +38,13 @@ export class WalletService {
      */
     async hasSufficientBalance(tenantId: string, amount: number = config.costPerMessage): Promise<boolean> {
         const balance = await this.getBalance(tenantId);
-        return balance.greaterThanOrEqualTo(new Decimal(amount));
+        return balance.greaterThanOrEqualTo(new Prisma.Decimal(amount));
     }
 
     /**
      * Add funds to wallet (after payment approval)
      */
-    async addBalance(tenantId: string, amount: number): Promise<Decimal> {
+    async addBalance(tenantId: string, amount: number): Promise<Prisma.Decimal> {
         const redis = getRedis();
 
         const tenant = await prisma.tenant.update({
@@ -67,7 +67,7 @@ export class WalletService {
     /**
      * Deduct from wallet (per message)
      */
-    async deductBalance(tenantId: string, amount: number = config.costPerMessage): Promise<Decimal> {
+    async deductBalance(tenantId: string, amount: number = config.costPerMessage): Promise<Prisma.Decimal> {
         const redis = getRedis();
 
         // Check balance first
@@ -96,7 +96,7 @@ export class WalletService {
     /**
      * Process monthly subscription
      */
-    async processMonthlyBilling(tenantId: string): Promise<{ success: boolean; newBalance?: Decimal; error?: string }> {
+    async processMonthlyBilling(tenantId: string): Promise<{ success: boolean; newBalance?: Prisma.Decimal; error?: string }> {
         const tenant = await prisma.tenant.findUnique({
             where: { id: tenantId },
             select: { walletBalance: true, monthlyFee: true, status: true },
