@@ -160,7 +160,7 @@ router.post('/tenants/:id/topup', async (req: Request, res: Response, next: Next
 
         res.json({
             message: 'Top-up successful',
-            ...result
+            ...(result as any)
         });
     } catch (error) {
         next(error);

@@ -44,7 +44,7 @@ export class PaymentService {
         adminUserId: string,
         input: AdminTopUpInput
     ) {
-        return prisma.$transaction(async (tx) => {
+        const result = await prisma.$transaction(async (tx: any) => {
             // 1. Create Transaction Record
             const transaction = await tx.paymentTransaction.create({
                 data: {

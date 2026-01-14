@@ -282,7 +282,7 @@ export class TenantService {
         ]);
 
         // Get conversation counts for these tenants
-        const tenantIds = tenants.map(t => t.id);
+        const tenantIds = tenants.map((t: any) => t.id);
         const countsMap = new Map<string, number>();
 
         if (tenantIds.length > 0) {
@@ -299,7 +299,7 @@ export class TenantService {
             });
         }
 
-        const tenantsWithStats = tenants.map((tenant) => ({
+        const tenantsWithStats = tenants.map((tenant: any) => ({
             ...tenant,
             conversationsCount: countsMap.get(tenant.id) || 0
         }));
@@ -352,7 +352,7 @@ export class TenantService {
         }
 
         // We use a transaction because we might need to update both User and Tenant
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await prisma.$transaction(async (tx: any) => {
             // Update tenant fields
             if (businessName || walletBalance !== undefined || status || systemPrompt !== undefined || aiModel) {
                 await tx.tenant.update({

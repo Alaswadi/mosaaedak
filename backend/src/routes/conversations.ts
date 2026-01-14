@@ -28,9 +28,6 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         // Better approach: Group by conversation partner.
 
         // A conversation is defined by the 'other' phone number.
-        // If direction is INBOUND, other = fromPhone.
-        // If direction is OUTBOUND, other = toPhone.
-
         const logs = await prisma.usageLog.findMany({
             where: {
                 tenantId: user.tenantId
@@ -38,12 +35,12 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
             orderBy: {
                 createdAt: 'desc'
             },
-            take: 500 // Limit for initial load performance, maybe paginate later
+            take: 500
         });
 
         const conversationsMap = new Map();
 
-        logs.forEach(log => {
+        logs.forEach((log: any) => {
             let otherPhone: string | null = null;
 
             if (log.direction === 'INBOUND') {
@@ -63,7 +60,6 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         });
 
         const conversations = Array.from(conversationsMap.values());
-
         res.json({ conversations });
 
     } catch (error) {
