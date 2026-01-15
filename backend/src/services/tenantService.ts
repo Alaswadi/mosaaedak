@@ -26,6 +26,7 @@ export class TenantService {
                 systemPrompt: true,
                 aiModel: true,
                 facebookPrompt: true,
+                facebookPageId: true,
                 status: true,
                 monthlyFee: true,
                 nextBillingDate: true,
@@ -393,6 +394,7 @@ export class TenantService {
                         ...(systemPrompt !== undefined && { systemPrompt }),
                         ...(aiModel && { aiModel }),
                         ...(input.facebookPrompt !== undefined && { facebookPrompt: input.facebookPrompt }),
+                        ...(input.facebookPageId !== undefined && { facebookPageId: input.facebookPageId }),
                     },
                 });
             }
