@@ -77,7 +77,8 @@ export function Users() {
                     conversationsCount: (tenant as any).conversationsCount || 0, // Now coming from backend
                     messagesCount: 0, // Still placeholder until we want to show total messages too
                     systemPrompt: tenant.systemPrompt,
-                    aiModel: tenant.aiModel
+                    aiModel: tenant.aiModel,
+                    walletBalance: tenant.walletBalance
                 };
             });
 

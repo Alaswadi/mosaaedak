@@ -21,6 +21,7 @@ export interface User {
     aiModel?: string;
     facebookPrompt?: string;
     facebookPageId?: string;
+    walletBalance?: number;
 }
 
 export interface Tenant {

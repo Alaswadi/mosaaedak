@@ -90,6 +90,9 @@ export function UsersTable({ users, onAddUser, onViewUser, onEditUser, onTopUp, 
                                 {t('users.table.status')}
                             </th>
                             <th className={`px-6 py-4 text-sm font-medium text-neutral-500 dark:text-neutral-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+                                Wallet Balance
+                            </th>
+                            <th className={`px-6 py-4 text-sm font-medium text-neutral-500 dark:text-neutral-400 ${isRTL ? 'text-right' : 'text-left'}`}>
                                 {t('users.table.conversations')}
                             </th>
                             <th className={`px-6 py-4 text-sm font-medium text-neutral-500 dark:text-neutral-400 ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -144,6 +147,16 @@ export function UsersTable({ users, onAddUser, onViewUser, onEditUser, onTopUp, 
                                                 }`}
                                         />
                                         {user.status?.toLowerCase() === 'active' ? t('users.table.active') : t('users.table.inactive')}
+                                    </span>
+                                </td>
+
+                                {/* Wallet Balance */}
+                                <td className="px-6 py-4">
+                                    <span className={`font-medium ${(user.walletBalance || 0) < 20
+                                            ? 'text-red-600 dark:text-red-400'
+                                            : 'text-neutral-900 dark:text-neutral-50'
+                                        }`}>
+                                        ${(user.walletBalance || 0).toFixed(2)}
                                     </span>
                                 </td>
 
