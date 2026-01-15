@@ -65,8 +65,21 @@ const statTranslationKeys: Record<string, string> = {
     'avg-response': 'stats.avgResponse',
 };
 
+// Breakdown item interface
+interface BreakdownItem {
+    label: string;
+    value: number;
+    color?: string;
+    icon?: React.ReactNode;
+}
+
+// Extend StatsData to include optional breakdown
+export interface StatsDataWithBreakdown extends StatsData {
+    breakdown?: BreakdownItem[];
+}
+
 interface StatsCardProps {
-    data: StatsData;
+    data: StatsDataWithBreakdown;
 }
 
 export function StatsCard({ data }: StatsCardProps) {
@@ -85,31 +98,49 @@ export function StatsCard({ data }: StatsCardProps) {
     const label = statTranslationKeys[data.id] ? t(statTranslationKeys[data.id]) : data.label;
 
     return (
-        <div className="card card-hover flex items-center gap-4 p-6">
-            <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${config.bgClass}`}>
-                <Icon className={`h-7 w-7 ${config.iconClass}`} />
+        <div className="card card-hover flex flex-col p-6">
+            <div className="flex items-center gap-4">
+                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${config.bgClass}`}>
+                    <Icon className={`h-7 w-7 ${config.iconClass}`} />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">
+                        {formatValue(data.value)}
+                    </p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{label}</p>
+                </div>
+                {data.trend !== undefined && (
+                    <div
+                        className={`flex items-center gap-1 text-sm font-medium ${data.trend >= 0 ? 'text-primary-500' : 'text-red-500'
+                            }`}
+                    >
+                        {data.trend >= 0 ? (
+                            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                            </svg>
+                        ) : (
+                            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                        <span>{Math.abs(data.trend)}%</span>
+                    </div>
+                )}
             </div>
-            <div className="min-w-0 flex-1">
-                <p className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">
-                    {formatValue(data.value)}
-                </p>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">{label}</p>
-            </div>
-            {data.trend !== undefined && (
-                <div
-                    className={`flex items-center gap-1 text-sm font-medium ${data.trend >= 0 ? 'text-primary-500' : 'text-red-500'
-                        }`}
-                >
-                    {data.trend >= 0 ? (
-                        <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        </svg>
-                    ) : (
-                        <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                    )}
-                    <span>{Math.abs(data.trend)}%</span>
+
+            {/* Breakdown section */}
+            {data.breakdown && data.breakdown.length > 0 && (
+                <div className="mt-4 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+                    <div className="flex justify-between gap-2">
+                        {data.breakdown.map((item, index) => (
+                            <div key={index} className="flex flex-col">
+                                <span className="text-xs text-neutral-400">{item.label}</span>
+                                <span className={`text-sm font-semibold ${item.color || 'text-neutral-700 dark:text-neutral-300'}`}>
+                                    {formatValue(item.value)}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

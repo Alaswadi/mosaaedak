@@ -142,6 +142,7 @@ model UsageLog {
   fromPhone   String?
   toPhone     String?
   messageId   String?          // External message ID (Twilio)
+  channel     Channel          @default(WHATSAPP)
   
   // Timestamp
   createdAt   DateTime         @default(now())
@@ -152,6 +153,12 @@ model UsageLog {
 enum MessageDirection {
   INBOUND
   OUTBOUND
+}
+
+enum Channel {
+  WHATSAPP
+  MESSENGER
+  OTHER
 }
 
 // ===========================================

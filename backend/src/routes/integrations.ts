@@ -13,6 +13,7 @@ const usageBodySchema = z.object({
     tenantId: z.string().uuid(),
     direction: z.enum(['INBOUND', 'OUTBOUND']),
     content: z.string(),
+    channel: z.enum(['WHATSAPP', 'MESSENGER', 'OTHER']).optional().default('WHATSAPP'),
     from: z.string().optional(), // User's phone number
     cost: z.number().optional(),
     deduct: z.boolean().optional(),
@@ -139,6 +140,7 @@ router.post('/n8n/usage', async (req: Request, res: Response, next: NextFunction
             body.tenantId,
             body.direction,
             body.content,
+            body.channel as any,
             body.direction === 'INBOUND' ? body.from : undefined, // fromPhone
             body.direction === 'OUTBOUND' ? body.from : undefined, // toPhone (if direction was outbound initially)
             body.messageId,
@@ -157,6 +159,7 @@ router.post('/n8n/usage', async (req: Request, res: Response, next: NextFunction
                 body.tenantId,
                 'OUTBOUND',
                 body.output,
+                body.channel as any,
                 undefined, // from (system/bot)
                 body.from, // toPhone (the user)
                 undefined,

@@ -71,6 +71,10 @@ export function Dashboard() {
             value: dashboardData.stats.totalQueries,
             icon: 'queries' as const,
             trend: dashboardData.stats.queriesGrowth,
+            breakdown: [
+                { label: 'WhatsApp', value: dashboardData.stats.whatsappQueries || 0, color: 'text-green-600 dark:text-green-500' },
+                { label: 'Messenger', value: dashboardData.stats.messengerQueries || 0, color: 'text-blue-600 dark:text-blue-500' }
+            ]
         },
         {
             id: 'active-users',

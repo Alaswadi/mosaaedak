@@ -63,6 +63,7 @@ Service suspended. Please top up your balance to continue.</Message>
             tenant.id,
             'INBOUND',
             messageBody,
+            'WHATSAPP',
             fromPhone,
             toPhone,
             messageSid
@@ -72,6 +73,7 @@ Service suspended. Please top up your balance to continue.</Message>
         const n8nPayload = {
             tenantId: tenant.id,
             businessName: tenant.businessName,
+            channel: 'WHATSAPP',
             fromPhone,
             toPhone,
             message: messageBody,
@@ -124,6 +126,7 @@ router.post('/n8n/callback', async (req: Request, res: Response, next: NextFunct
             fromPhone,
             toPhone,
             error,
+            channel = 'WHATSAPP', // Default to WhatsApp for backward compatibility
         } = req.body;
 
         if (!success) {
@@ -137,6 +140,7 @@ router.post('/n8n/callback', async (req: Request, res: Response, next: NextFunct
             tenantId,
             'OUTBOUND',
             responseMessage || 'AI response sent',
+            channel,
             toPhone, // From the bot's perspective
             fromPhone, // To the user
             messageSid

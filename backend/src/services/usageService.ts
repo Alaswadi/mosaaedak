@@ -1,7 +1,7 @@
 import prisma from '../config/database.js';
 import { config } from '../config/index.js';
 import { walletService } from './walletService.js';
-import { MessageDirection, Prisma } from '@prisma/client';
+import { MessageDirection, Prisma, Channel } from '@prisma/client';
 
 export class UsageService {
     /**
@@ -11,6 +11,7 @@ export class UsageService {
         tenantId: string,
         direction: MessageDirection,
         content: string,
+        channel: Channel = 'WHATSAPP',
         fromPhone?: string,
         toPhone?: string,
         messageId?: string,
@@ -38,6 +39,7 @@ export class UsageService {
                 tenantId,
                 direction,
                 content,
+                channel,
                 cost: new Prisma.Decimal(cost), // Store the actual cost used
                 fromPhone,
                 toPhone,
@@ -101,7 +103,7 @@ export class UsageService {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);
 
-        const [messageStats, costStats] = await Promise.all([
+        const [messageStats, costStats, channelStats] = await Promise.all([
             prisma.usageLog.groupBy({
                 by: ['direction'],
                 where: {
@@ -117,23 +119,35 @@ export class UsageService {
                 },
                 _sum: { cost: true },
             }),
+            prisma.usageLog.groupBy({
+                by: ['channel'],
+                where: {
+                    tenantId,
+                    createdAt: { gte: startDate },
+                },
+                _count: true,
+            }),
         ]);
 
         const inbound = messageStats.find((s: any) => s.direction === 'INBOUND')?._count || 0;
         const outbound = messageStats.find((s: any) => s.direction === 'OUTBOUND')?._count || 0;
+
+        const whatsappCount = channelStats.find((s: any) => s.channel === 'WHATSAPP')?._count || 0;
+        const messengerCount = channelStats.find((s: any) => s.channel === 'MESSENGER')?._count || 0;
 
         return {
             period: `${days} days`,
             totalMessages: inbound + outbound,
             inboundMessages: inbound,
             outboundMessages: outbound,
+            channels: {
+                whatsapp: whatsappCount,
+                messenger: messengerCount
+            },
             totalCost: costStats._sum.cost?.toNumber() || 0,
         };
     }
 
-    /**
-     * Get global analytics (admin)
-     */
     /**
      * Get global analytics (admin)
      */
@@ -154,7 +168,8 @@ export class UsageService {
             dailyStats,
             activeUsersCount,
             recentLogs,
-            newUsersCount
+            newUsersCount,
+            channelStats
         ] = await Promise.all([
             // Total messages
             prisma.usageLog.count({
@@ -229,7 +244,16 @@ export class UsageService {
                     WHERE "direction" = 'INBOUND'
                     AND "createdAt" < ${startDate}
                 )
-            `
+            `,
+
+            // Channel usage stats
+            prisma.usageLog.groupBy({
+                by: ['channel'],
+                where: {
+                    createdAt: { gte: startDate },
+                },
+                _count: true,
+            })
         ]);
 
         // Process daily stats for chart
@@ -241,10 +265,15 @@ export class UsageService {
         const newUsers = Number(newUsersCount ? (newUsersCount as any)[0]?.count : 0);
         const returningUsers = activeUsersCount - newUsers;
 
+        const whatsappQueries = channelStats.find((s: any) => s.channel === 'WHATSAPP')?._count || 0;
+        const messengerQueries = channelStats.find((s: any) => s.channel === 'MESSENGER')?._count || 0;
+
         return {
             period: `${days} days`,
             stats: {
                 totalQueries: totalMessages,
+                whatsappQueries: whatsappQueries,
+                messengerQueries: messengerQueries,
                 activeUsers: activeUsersCount,
                 successRate: 98.5, // Mocked for now (no reliability metric yet)
                 avgResponse: 1.2,  // Mocked for now (no latency tracking yet)
@@ -267,6 +296,7 @@ export class UsageService {
                 id: log.id,
                 user: log.fromPhone || log.toPhone || 'Unknown',
                 message: log.content,
+                channel: log.channel,
                 status: 'Success', // Mocked status
                 time: log.createdAt,
                 tenant: log.tenant.businessName
