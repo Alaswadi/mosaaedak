@@ -59,17 +59,24 @@ export class TenantService {
                 systemPrompt: input.systemPrompt,
                 aiModel: input.aiModel,
                 facebookPrompt: input.facebookPrompt,
+                facebookPageId: input.facebookPageId,
             },
             select: {
                 systemPrompt: true,
                 aiModel: true,
                 facebookPrompt: true,
+                facebookPageId: true,
             },
         });
 
         // Invalidate config cache
         try {
             await redis.del(CacheKeys.tenantConfig(tenantId));
+
+            // Also invalidate by facebook page id if it changed/was set
+            if (input.facebookPageId) {
+                // We might need a new cache key for this, but for now just basic invalidation
+            }
         } catch (error) {
             console.error('Redis error (non-fatal):', error);
         }
@@ -140,6 +147,7 @@ export class TenantService {
                 systemPrompt: true,
                 aiModel: true,
                 facebookPrompt: true,
+                facebookPageId: true,
                 twilioSid: true,
                 twilioToken: true,
                 status: true,
@@ -160,6 +168,7 @@ export class TenantService {
                             systemPrompt: true,
                             aiModel: true,
                             facebookPrompt: true,
+                            facebookPageId: true,
                             twilioSid: true,
                             twilioToken: true,
                             status: true,
@@ -177,6 +186,26 @@ export class TenantService {
             // Cache the mapping for future speed
             await redis.setex(cacheKey, CacheTTL.phoneMapping, tenant.id);
         }
+
+        return tenant;
+    }
+
+    /**
+     * Get tenant by Facebook Page ID (for webhook routing)
+     */
+    async getTenantByFacebookPageId(pageId: string) {
+        const tenant = await prisma.tenant.findUnique({
+            where: { facebookPageId: pageId },
+            select: {
+                id: true,
+                businessName: true,
+                systemPrompt: true,
+                aiModel: true,
+                facebookPrompt: true,
+                facebookPageId: true,
+                status: true,
+            },
+        });
 
         return tenant;
     }

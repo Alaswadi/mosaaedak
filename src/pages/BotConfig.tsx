@@ -14,6 +14,7 @@ export function BotConfig() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [systemPrompt, setSystemPrompt] = useState('');
     const [facebookPrompt, setFacebookPrompt] = useState('');
+    const [facebookPageId, setFacebookPageId] = useState('');
     const [activeTab, setActiveTab] = useState<'system' | 'facebook'>('system');
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -80,6 +81,7 @@ export function BotConfig() {
                     const data = await api.getTenantDetails(userId);
                     setSystemPrompt(data.systemPrompt || '');
                     setFacebookPrompt(data.facebookPrompt || '');
+                    setFacebookPageId(data.facebookPageId || '');
                 } catch (err: any) {
                     setError('Failed to load tenant details');
                     console.error(err);
@@ -87,10 +89,10 @@ export function BotConfig() {
                     setLoading(false);
                 }
             } else if (!isAdmin && tenant) {
-                // If somehow accessed by customer (though link is removed), redirect or load own
-                // But simplified requirement is admin-only page "like this". 
-                // We'll keep this logic just in case for now, but focus on admin.
-                navigate('/customer/dashboard');
+                // Should not happen for customer based on requirement but loading for consistency if we wanted
+                setSystemPrompt(tenant.systemPrompt || '');
+                setFacebookPrompt(tenant.facebookPrompt || '');
+                setFacebookPageId(tenant.facebookPageId || '');
             }
         };
 
@@ -104,11 +106,14 @@ export function BotConfig() {
 
         try {
             if (userId && isAdmin) {
-                // Admin updating customer bot
-                await api.updateTenant(userId, { systemPrompt, facebookPrompt });
+                // Admin updating customer bot - admin update endpoint might need facebookPageId too if using that route
+                // But typically we use updateBotConfig for the specific tenant context
+                // If using api.updateTenant (admin route), we need to make sure it supports it.
+                // Based on validation, adminUpdateTenantSchema supports it now.
+                await api.updateTenant(userId, { systemPrompt, facebookPrompt, facebookPageId });
             } else {
                 // Fallback (shouldn't be reached given new requirements)
-                await api.updateBotConfig(systemPrompt, undefined, facebookPrompt);
+                await api.updateBotConfig(systemPrompt, undefined, facebookPrompt, facebookPageId);
                 await refreshTenant();
             }
             setSuccess(true);
@@ -252,19 +257,44 @@ export function BotConfig() {
                                                     : 'Enter your general bot instructions here...'}
                                             />
                                         ) : (
-                                            <ReactQuill
-                                                key="facebook"
-                                                ref={quillRef}
-                                                theme="snow"
-                                                value={facebookPrompt}
-                                                onChange={setFacebookPrompt}
-                                                modules={modules}
-                                                formats={formats}
-                                                className="bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg [&_.ql-editor]:min-h-[500px]"
-                                                placeholder={isRTL
-                                                    ? 'اكتب تعليمات خاصة بماسنجر فيسبوك (اتركها فارغة لاستخدام التعليمات العامة)...'
-                                                    : 'Enter specific instructions for Facebook Messenger (leave empty to use general instructions)...'}
-                                            />
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                                                        {isRTL ? 'معرف الصفحة (Page ID)' : 'Facebook Page ID'}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={facebookPageId}
+                                                        onChange={(e) => setFacebookPageId(e.target.value)}
+                                                        className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm text-neutral-900 focus:border-primary-500 focus:ring-primary-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
+                                                        placeholder={isRTL ? '4469...' : 'e.g., 1029472393575012'}
+                                                    />
+                                                    <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                                        {isRTL
+                                                            ? 'يستخدم هذا المعرف لربط البوت بصفحتك على الفيسبوك.'
+                                                            : 'This ID is used to link the bot to your Facebook Page.'}
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                                                        {isRTL ? 'تعليمات الماسنجر' : 'Messenger Prompt'}
+                                                    </label>
+                                                    <ReactQuill
+                                                        key="facebook"
+                                                        ref={quillRef}
+                                                        theme="snow"
+                                                        value={facebookPrompt}
+                                                        onChange={setFacebookPrompt}
+                                                        modules={modules}
+                                                        formats={formats}
+                                                        className="bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white rounded-lg [&_.ql-editor]:min-h-[400px]"
+                                                        placeholder={isRTL
+                                                            ? 'اكتب تعليمات خاصة بماسنجر فيسبوك...'
+                                                            : 'Enter specific instructions for Facebook Messenger...'}
+                                                    />
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 </div>

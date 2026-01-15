@@ -60,6 +60,7 @@ model Tenant {
   systemPrompt    String?      @db.Text
   aiModel         String       @default("gpt-3.5-turbo")
   facebookPrompt  String?      @db.Text
+  facebookPageId  String?      @unique
   
   // Status & Billing
   status          TenantStatus @default(ACTIVE)

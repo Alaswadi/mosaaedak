@@ -81,6 +81,52 @@ router.get('/n8n/context', async (req: Request, res: Response, next: NextFunctio
     }
 });
 
+/**
+ * GET /api/integrations/facebook/config/:pageId
+ * Retrieve tenant config by Facebook Page ID
+ */
+router.get('/facebook/config/:pageId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { pageId } = req.params;
+
+        if (!pageId) {
+            res.status(400).json({ error: 'Page ID required' });
+            return;
+        }
+
+        const tenant = await tenantService.getTenantByFacebookPageId(pageId);
+
+        if (!tenant) {
+            res.status(404).json({
+                error: 'Tenant not found',
+                message: `No tenant configured for Facebook Page ID: ${pageId}`
+            });
+            return;
+        }
+
+        if (tenant.status === 'BANNED' || tenant.status === 'PAUSED') {
+            res.status(403).json({
+                error: 'Service unavailable',
+                message: 'Tenant is banned or paused'
+            });
+            return;
+        }
+
+        res.json({
+            tenantId: tenant.id,
+            businessName: tenant.businessName,
+            systemPrompt: tenant.systemPrompt,
+            facebookPrompt: tenant.facebookPrompt,
+            // Fallback content if specific facebook prompt is missing
+            activePrompt: tenant.facebookPrompt || tenant.systemPrompt || 'You are a helpful assistant.',
+            aiModel: tenant.aiModel || 'gpt-3.5-turbo',
+        });
+
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.post('/n8n/usage', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const body = usageBodySchema.parse(req.body);
