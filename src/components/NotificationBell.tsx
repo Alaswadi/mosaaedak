@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import api from '../services/api';
 
 interface Notification {
     id: string;
@@ -15,7 +14,7 @@ interface Notification {
 }
 
 export function NotificationBell() {
-    const { t, isRTL } = useLanguage();
+    const { isRTL } = useLanguage();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
