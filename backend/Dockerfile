@@ -30,4 +30,4 @@ RUN mkdir -p /app/uploads/proofs
 EXPOSE 3000
 
 # Start the server with DB sync
-CMD npx prisma db push && npm start
+CMD npx prisma db push --accept-data-loss && npm start
