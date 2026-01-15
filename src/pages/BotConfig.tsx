@@ -15,6 +15,7 @@ export function BotConfig() {
     const [systemPrompt, setSystemPrompt] = useState('');
     const [facebookPrompt, setFacebookPrompt] = useState('');
     const [facebookPageId, setFacebookPageId] = useState('');
+    const [facebookAccessToken, setFacebookAccessToken] = useState('');
     const [activeTab, setActiveTab] = useState<'system' | 'facebook'>('system');
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -82,6 +83,7 @@ export function BotConfig() {
                     setSystemPrompt(data.systemPrompt || '');
                     setFacebookPrompt(data.facebookPrompt || '');
                     setFacebookPageId(data.facebookPageId || '');
+                    // We don't load the token for security, usually
                 } catch (err: any) {
                     setError('Failed to load tenant details');
                     console.error(err);
@@ -110,10 +112,10 @@ export function BotConfig() {
                 // But typically we use updateBotConfig for the specific tenant context
                 // If using api.updateTenant (admin route), we need to make sure it supports it.
                 // Based on validation, adminUpdateTenantSchema supports it now.
-                await api.updateTenant(userId, { systemPrompt, facebookPrompt, facebookPageId });
+                await api.updateTenant(userId, { systemPrompt, facebookPrompt, facebookPageId, facebookAccessToken: facebookAccessToken || undefined });
             } else {
                 // Fallback (shouldn't be reached given new requirements)
-                await api.updateBotConfig(systemPrompt, undefined, facebookPrompt, facebookPageId);
+                await api.updateBotConfig(systemPrompt, undefined, facebookPrompt, facebookPageId, facebookAccessToken || undefined);
                 await refreshTenant();
             }
             setSuccess(true);
@@ -273,6 +275,24 @@ export function BotConfig() {
                                                         {isRTL
                                                             ? 'يستخدم هذا المعرف لربط البوت بصفحتك على الفيسبوك.'
                                                             : 'This ID is used to link the bot to your Facebook Page.'}
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                                                        {isRTL ? 'رمز الوصول (Access Token)' : 'Facebook Access Token'}
+                                                    </label>
+                                                    <input
+                                                        type="password"
+                                                        value={facebookAccessToken}
+                                                        onChange={(e) => setFacebookAccessToken(e.target.value)}
+                                                        className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm text-neutral-900 focus:border-primary-500 focus:ring-primary-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
+                                                        placeholder={isRTL ? 'أدخل رمز الوصول...' : 'Enter Facebook Access Token...'}
+                                                    />
+                                                    <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                                        {isRTL
+                                                            ? 'يستخدم هذا الرمز لإرسال الرسائل باسم صفحتك.'
+                                                            : 'This token is used to send messages on behalf of your page.'}
                                                     </p>
                                                 </div>
 

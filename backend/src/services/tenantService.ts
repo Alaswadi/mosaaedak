@@ -61,6 +61,7 @@ export class TenantService {
                 aiModel: input.aiModel,
                 facebookPrompt: input.facebookPrompt,
                 facebookPageId: input.facebookPageId,
+                ...(input.facebookAccessToken && { facebookAccessToken: encrypt(input.facebookAccessToken) }),
             },
             select: {
                 systemPrompt: true,
@@ -204,9 +205,17 @@ export class TenantService {
                 aiModel: true,
                 facebookPrompt: true,
                 facebookPageId: true,
+                facebookAccessToken: true,
                 status: true,
             },
         });
+
+        if (tenant && tenant.facebookAccessToken) {
+            return {
+                ...tenant,
+                facebookAccessToken: decrypt(tenant.facebookAccessToken),
+            };
+        }
 
         return tenant;
     }
@@ -395,6 +404,7 @@ export class TenantService {
                         ...(aiModel && { aiModel }),
                         ...(input.facebookPrompt !== undefined && { facebookPrompt: input.facebookPrompt }),
                         ...(input.facebookPageId !== undefined && { facebookPageId: input.facebookPageId }),
+                        ...(input.facebookAccessToken !== undefined && { facebookAccessToken: encrypt(input.facebookAccessToken) }),
                     },
                 });
             }

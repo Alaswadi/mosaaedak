@@ -61,6 +61,7 @@ model Tenant {
   aiModel         String       @default("gpt-3.5-turbo")
   facebookPrompt  String?      @db.Text
   facebookPageId  String?      @unique
+  facebookAccessToken String?  // Encrypted
   
   // Status & Billing
   status          TenantStatus @default(ACTIVE)

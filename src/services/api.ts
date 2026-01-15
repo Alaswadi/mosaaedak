@@ -178,10 +178,10 @@ class ApiClient {
         return this.request<{ balance: number }>('/tenant/wallet');
     }
 
-    async updateBotConfig(systemPrompt?: string, aiModel?: string, facebookPrompt?: string, facebookPageId?: string) {
-        return this.request<{ systemPrompt: string; aiModel: string; facebookPrompt: string; facebookPageId: string }>('/tenant/bot-config', {
+    async updateBotConfig(systemPrompt?: string, aiModel?: string, facebookPrompt?: string, facebookPageId?: string, facebookAccessToken?: string) {
+        return this.request<{ systemPrompt: string; aiModel: string; facebookPrompt: string; facebookPageId: string; facebookAccessToken?: string }>('/tenant/bot-config', {
             method: 'PATCH',
-            body: JSON.stringify({ systemPrompt, aiModel, facebookPrompt, facebookPageId }),
+            body: JSON.stringify({ systemPrompt, aiModel, facebookPrompt, facebookPageId, facebookAccessToken }),
         });
     }
 
@@ -286,7 +286,7 @@ class ApiClient {
         return this.request<Tenant & { user: User }>(`/admin/tenants/${id}`);
     }
 
-    async updateTenant(id: string, data: { name?: string; email?: string; phone?: string; businessName?: string; password?: string; status?: 'ACTIVE' | 'PAUSED' | 'BANNED'; systemPrompt?: string; aiModel?: string; facebookPrompt?: string; facebookPageId?: string }) {
+    async updateTenant(id: string, data: { name?: string; email?: string; phone?: string; businessName?: string; password?: string; status?: 'ACTIVE' | 'PAUSED' | 'BANNED'; systemPrompt?: string; aiModel?: string; facebookPrompt?: string; facebookPageId?: string; facebookAccessToken?: string }) {
         return this.request<{ message: string; tenant: Tenant }>(`/admin/tenants/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(data),

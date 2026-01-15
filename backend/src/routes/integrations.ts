@@ -117,6 +117,7 @@ router.get('/facebook/config/:pageId', async (req: Request, res: Response, next:
             businessName: tenant.businessName,
             systemPrompt: tenant.systemPrompt,
             facebookPrompt: tenant.facebookPrompt,
+            facebookAccessToken: tenant.facebookAccessToken,
             // Fallback content if specific facebook prompt is missing
             activePrompt: tenant.facebookPrompt || tenant.systemPrompt || 'You are a helpful assistant.',
             aiModel: tenant.aiModel || 'gpt-3.5-turbo',

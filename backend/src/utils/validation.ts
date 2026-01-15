@@ -29,6 +29,7 @@ export const updateBotConfigSchema = z.object({
     aiModel: z.enum(['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo']).optional(),
     facebookPrompt: z.string().max(100000, 'Facebook prompt too long').optional(),
     facebookPageId: z.string().optional(),
+    facebookAccessToken: z.string().optional(),
 });
 
 // Twilio credentials schema
@@ -66,6 +67,7 @@ export const adminUpdateTenantSchema = z.object({
     aiModel: z.enum(['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo']).optional(),
     facebookPrompt: z.string().max(100000).optional(),
     facebookPageId: z.string().optional(),
+    facebookAccessToken: z.string().optional(),
 });
 
 export const adminTopUpSchema = z.object({
