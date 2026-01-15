@@ -2,6 +2,7 @@ import prisma from '../config/database.js';
 import { getRedis, CacheKeys, CacheTTL } from '../config/redis.js';
 import { config } from '../config/index.js';
 import { Prisma } from '@prisma/client';
+import { notificationService } from './notificationService.js';
 
 export class WalletService {
     /**
@@ -64,6 +65,8 @@ export class WalletService {
         return tenant.walletBalance;
     }
 
+
+
     /**
      * Deduct from wallet (per message)
      */
@@ -76,6 +79,14 @@ export class WalletService {
             throw new Error('Insufficient balance');
         }
 
+        // Get current balance to check strictly for threshold crossing
+        const currentTenant = await prisma.tenant.findUnique({
+            where: { id: tenantId },
+            select: { walletBalance: true, businessName: true }
+        });
+
+        if (!currentTenant) throw new Error('Tenant not found');
+
         const tenant = await prisma.tenant.update({
             where: { id: tenantId },
             data: {
@@ -83,8 +94,23 @@ export class WalletService {
                     decrement: amount,
                 },
             },
-            select: { walletBalance: true },
+            select: { walletBalance: true, businessName: true },
         });
+
+        // Check for low balance visual crossing
+        // Trigger if it was above or equal to threshold and now is below
+        const threshold = new Prisma.Decimal(config.lowBalanceThreshold);
+        const oldBalance = currentTenant.walletBalance;
+        const newBalance = tenant.walletBalance;
+
+        if (oldBalance.greaterThanOrEqualTo(threshold) && newBalance.lessThan(threshold)) {
+            await notificationService.createNotification(
+                'LOW_BALANCE',
+                'Low Balance Alert',
+                `Tenant "${tenant.businessName}" balance has dropped below $${config.lowBalanceThreshold}. Current balance: $${newBalance.toFixed(2)}`,
+                tenantId
+            );
+        }
 
         // Update cache
         const cacheKey = CacheKeys.tenantBalance(tenantId);
@@ -142,6 +168,22 @@ export class WalletService {
         // Update cache
         const redis = getRedis();
         await redis.setex(CacheKeys.tenantBalance(tenantId), CacheTTL.balance, updated.walletBalance.toString());
+
+        // Check for low balance after monthly fee
+        const threshold = new Prisma.Decimal(config.lowBalanceThreshold);
+        if (updated.walletBalance.lessThan(threshold)) {
+            // For monthly billing, we might want to notify even if it was already low, 
+            // but sticking to the "crossing" logic or just simple check is fine.
+            // Let's just notify if low, as monthly fee is a significant event.
+            const tName = (await prisma.tenant.findUnique({ where: { id: tenantId }, select: { businessName: true } }))?.businessName || 'Unknown';
+
+            await notificationService.createNotification(
+                'LOW_BALANCE',
+                'Low Balance after Subscription Renewal',
+                `Tenant "${tName}" balance is now $${updated.walletBalance.toFixed(2)} after monthly fee deduction.`,
+                tenantId
+            );
+        }
 
         return { success: true, newBalance: updated.walletBalance };
     }

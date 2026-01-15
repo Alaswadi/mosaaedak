@@ -72,6 +72,7 @@ model Tenant {
   user            User?
   transactions    PaymentTransaction[]
   usageLogs       UsageLog[]
+  notifications   Notification[]
   
   // Timestamps
   createdAt       DateTime     @default(now())
@@ -168,4 +169,27 @@ model SystemSetting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+// ===========================================
+// NOTIFICATIONS (System Alerts for Admin)
+// ===========================================
+model Notification {
+  id          String           @id @default(uuid())
+  type        NotificationType
+  title       String
+  message     String
+  isRead      Boolean          @default(false)
+  
+  // Optional link to related entity
+  tenant      Tenant?          @relation(fields: [tenantId], references: [id])
+  tenantId    String?
+
+  createdAt   DateTime         @default(now())
+}
+
+enum NotificationType {
+  LOW_BALANCE
+  SYSTEM_ALERT
+  PAYMENT_PENDING
 }

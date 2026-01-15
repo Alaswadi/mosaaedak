@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
 import { tenantService, usageService, paymentService, settingsService } from '../services/index.js';
+import { notificationService } from '../services/notificationService.js';
 import { paginationSchema, updateUserStatusSchema, registerSchema, adminUpdateTenantSchema, adminTopUpSchema } from '../utils/validation.js';
 import { TenantStatus } from '@prisma/client';
 import { authService } from '../services/authService.js';
@@ -38,6 +39,32 @@ router.get('/users/analytics', async (req: Request, res: Response, next: NextFun
     try {
         const analytics = await usageService.getUsersAnalytics();
         res.json(analytics);
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * GET /api/admin/notifications/unread
+ * Get unread notifications
+ */
+router.get('/notifications/unread', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const notifications = await notificationService.getUnreadNotifications();
+        res.json(notifications);
+    } catch (error) {
+        next(error);
+    }
+});
+
+/**
+ * PATCH /api/admin/notifications/:id/read
+ * Mark notification as read
+ */
+router.patch('/notifications/:id/read', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        await notificationService.markAsRead(req.params.id);
+        res.json({ message: 'Notification marked as read' });
     } catch (error) {
         next(error);
     }

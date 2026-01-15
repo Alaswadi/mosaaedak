@@ -5,6 +5,7 @@ import TotalQueriesChart from '../components/widgets/TotalQueriesChart';
 import UserEngagementChart from '../components/widgets/UserEngagementChart';
 import ServerStatus from '../components/widgets/ServerStatus';
 import LiveChatLogs from '../components/widgets/LiveChatLogs';
+import { NotificationBell } from '../components/NotificationBell';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
     serverStatus,
@@ -134,23 +135,28 @@ export function Dashboard() {
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('dashboard.welcome')}</p>
                     </div>
 
-                    {/* Search bar - hidden on mobile */}
-                    <div className="hidden md:block">
-                        <div className="relative">
-                            <svg
-                                className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400 ${isRTL ? 'right-3' : 'left-3'}`}
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input
-                                type="text"
-                                placeholder={t('common.search')}
-                                className={`w-64 rounded-lg border border-neutral-200 bg-neutral-50 py-2 text-sm placeholder-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50 dark:placeholder-neutral-500 ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'}`}
-                            />
+                    {/* Right side actions */}
+                    <div className="flex items-center gap-4">
+                        <NotificationBell />
+
+                        {/* Search bar - hidden on mobile */}
+                        <div className="hidden md:block">
+                            <div className="relative">
+                                <svg
+                                    className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400 ${isRTL ? 'right-3' : 'left-3'}`}
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input
+                                    type="text"
+                                    placeholder={t('common.search')}
+                                    className={`w-64 rounded-lg border border-neutral-200 bg-neutral-50 py-2 text-sm placeholder-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50 dark:placeholder-neutral-500 ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'}`}
+                                />
+                            </div>
                         </div>
                     </div>
                 </header>

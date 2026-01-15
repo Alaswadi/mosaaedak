@@ -34,7 +34,7 @@ export const config = {
     // Billing
     costPerMessage: parseFloat(process.env.COST_PER_MESSAGE || '0.03'),
     monthlySubscriptionFee: parseFloat(process.env.MONTHLY_SUBSCRIPTION_FEE || '29.00'),
-    lowBalanceThreshold: parseFloat(process.env.LOW_BALANCE_THRESHOLD || '1.00'),
+    lowBalanceThreshold: parseFloat(process.env.LOW_BALANCE_THRESHOLD || '20.00'),
 
     // Twilio (Master Account)
     twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
